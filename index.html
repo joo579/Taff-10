@@ -268,12 +268,15 @@
         }
         
         #modal-main-view .modal-grid .modal-control,
-        #modal-jp-view .modal-grid .modal-control {
+        #modal-jp-view .modal-grid .modal-control,
+        #modal-overtime-type-view .modal-grid .modal-control {
             color: var(--primary-color);
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
         }
+
         #modal-main-view .modal-grid .modal-control:active,
-        #modal-jp-view .modal-grid .modal-control:active {
+        #modal-jp-view .modal-grid .modal-control:active,
+        #modal-overtime-type-view .modal-grid .modal-control:active {
             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
         }
 
@@ -472,21 +475,25 @@
         }
 
         /* Styles pour les sélecteurs d'heures supplémentaires, week-end et semaine */
-        #modal-overtime-weekend-view .modal-grid,
-        #modal-overtime-weekday-view .modal-grid {
+        #modal-overtime-hours-view .modal-grid {
              grid-template-columns: 1fr;
              gap: 10px;
              max-width: 120px;
              margin: 0 auto;
         }
 
-        #modal-overtime-weekend-view .form-group label,
-        #modal-overtime-weekday-view .form-group label {
+        #modal-overtime-hours-view .form-group label,
+        #modal-overtime-type-view .form-group label {
              text-align: center;
         }
+        
+        #modal-overtime-type-view .modal-grid {
+             max-width: 250px;
+             margin: 0 auto;
+        }
 
-        #modal-overtime-weekend-view .modal-grid .modal-control,
-        #modal-overtime-weekday-view .modal-grid .modal-control {
+        #modal-overtime-hours-view .modal-grid .modal-control,
+        #modal-overtime-type-view .modal-grid .modal-control {
             aspect-ratio: auto;
             height: auto;
             padding-top: 15px;
@@ -568,33 +575,28 @@
                 </div>
             </div>
 
-             <div id="modal-overtime-weekend-view" class="modal-view hidden">
+             <div id="modal-overtime-type-view" class="modal-view hidden">
                 <div class="form-group">
-                    <label>Heures supplémentaires</label>
-                     <div class="modal-grid">
-                         <div class="form-group">
-                            <label>Heures</label>
-                            <select id="overtime-weekend-hours" class="modal-control"></select>
-                         </div>
+                    <label>Choisir le shift</label>
+                    <div class="modal-grid">
+                        <button id="overtime-morning-btn" class="modal-control">Matin</button>
+                        <button id="overtime-night-btn" class="modal-control">Nuit</button>
                     </div>
-                </div>
-                <div class="form-group">
-                    <button id="save-overtime-weekend-btn" class="btn-primary">Sauvegarder</button>
                 </div>
             </div>
 
-             <div id="modal-overtime-weekday-view" class="modal-view hidden">
+             <div id="modal-overtime-hours-view" class="modal-view hidden">
                 <div class="form-group">
                     <label>Heures supplémentaires</label>
                      <div class="modal-grid">
                          <div class="form-group">
                             <label>Heures</label>
-                            <select id="overtime-weekday-hours" class="modal-control"></select>
+                            <select id="overtime-hours" class="modal-control"></select>
                          </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <button id="save-overtime-weekday-btn" class="btn-primary">Sauvegarder</button>
+                    <button id="save-overtime-btn" class="btn-primary">Sauvegarder</button>
                 </div>
             </div>
 
@@ -658,11 +660,11 @@
             const mainView = document.getElementById('modal-main-view');
             const manageView = document.getElementById('modal-manage-view');
             const leaveView = document.getElementById('modal-leave-view');
-            const overtimeWeekendView = document.getElementById('modal-overtime-weekend-view');
-            const overtimeWeekdayView = document.getElementById('modal-overtime-weekday-view');
+            const overtimeTypeView = document.getElementById('modal-overtime-type-view');
+            const overtimeHoursView = document.getElementById('modal-overtime-hours-view');
             const jpView = document.getElementById('modal-jp-view');
             const recView = document.getElementById('modal-rec-view');
-            const allViews = [mainView, manageView, leaveView, overtimeWeekendView, overtimeWeekdayView, jpView, recView];
+            const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView];
 
             const modalBackArrow = document.getElementById('modal-back-arrow');
             
@@ -676,11 +678,10 @@
             const recMinutesSelect = document.getElementById('rec-minutes');
             const saveRecBtn = document.getElementById('save-rec-btn');
 
-            const overtimeWeekdayHoursSelect = document.getElementById('overtime-weekday-hours');
-            const saveOvertimeWeekdayBtn = document.getElementById('save-overtime-weekday-btn');
-
-            const overtimeWeekendHoursSelect = document.getElementById('overtime-weekend-hours');
-            const saveOvertimeWeekendBtn = document.getElementById('save-overtime-weekend-btn');
+            const overtimeHoursSelect = document.getElementById('overtime-hours');
+            const saveOvertimeBtn = document.getElementById('save-overtime-btn');
+            const overtimeMorningBtn = document.getElementById('overtime-morning-btn');
+            const overtimeNightBtn = document.getElementById('overtime-night-btn');
 
             const goToLeaveBtn = document.getElementById('btn-go-to-leave');
             const sickBtn = document.getElementById('btn-sick');
@@ -697,6 +698,7 @@
             let dayData = JSON.parse(localStorage.getItem('dayData')) || {};
             let editMode = 'overwrite';
             let selectedDayOfWeek = null;
+            let selectedOvertimeShift = null;
 
             const shifts = ['morning', 'night', 'pm'];
             const shiftNames = { morning: 'Matin', night: 'Nuit', pm: 'PM' };
@@ -823,6 +825,7 @@
                 modalTitle.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
                 
                 selectedDayOfWeek = date.getDay();
+                selectedOvertimeShift = null;
 
                 const dataForDay = dayData[selectedDay];
                 if (dataForDay && dataForDay.length > 0) {
@@ -875,21 +878,23 @@
                 closeModalFunc();
             }
 
+            function populateOvertimeHours() {
+                overtimeHoursSelect.innerHTML = '';
+                for (let i = 0; i <= 12; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}h`;
+                    overtimeHoursSelect.appendChild(option);
+                }
+            }
+
+            populateOvertimeHours();
+
             for (let i = 0; i <= 8; i++) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.textContent = `${i}h`;
                 recHoursSelect.appendChild(option);
-
-                const option2 = document.createElement('option');
-                option2.value = i;
-                option2.textContent = `${i}h`;
-                overtimeWeekdayHoursSelect.appendChild(option2);
-
-                const option3 = document.createElement('option');
-                option3.value = i;
-                option3.textContent = `${i}h`;
-                overtimeWeekendHoursSelect.appendChild(option3);
             }
             for (let i = 0; i < 60; i += 5) {
                 const option = document.createElement('option');
@@ -921,12 +926,21 @@
             });
 
             modalBackArrow.addEventListener('click', () => {
-                const isOvertimeSubView = !overtimeWeekendView.classList.contains('hidden') || !overtimeWeekdayView.classList.contains('hidden');
-                if (isOvertimeSubView) showModalView('modal-main-view');
-                const isSubLeaveView = !jpView.classList.contains('hidden') || !recView.classList.contains('hidden');
-                if (isSubLeaveView) showModalView('modal-leave-view');
-                else openModal(selectedDay);
+                if (!overtimeHoursView.classList.contains('hidden')) {
+                    if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
+                        showModalView('modal-overtime-type-view');
+                    } else {
+                        showModalView('modal-main-view');
+                    }
+                } else if (!overtimeTypeView.classList.contains('hidden')) {
+                     showModalView('modal-main-view');
+                } else if (!jpView.classList.contains('hidden') || !recView.classList.contains('hidden')) {
+                     showModalView('modal-leave-view');
+                } else {
+                    openModal(selectedDay);
+                }
             });
+
 
             btnAddSecondData.addEventListener('click', () => {
                 editMode = 'append';
@@ -937,36 +951,57 @@
             
             goToOvertimeBtn.addEventListener('click', () => {
                 if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
-                    showModalView('modal-overtime-weekend-view');
+                    showModalView('modal-overtime-type-view');
                 } else {
-                    showModalView('modal-overtime-weekday-view');
+                    showModalView('modal-overtime-hours-view');
                 }
             });
+
+            overtimeMorningBtn.addEventListener('click', () => {
+                selectedOvertimeShift = 'morning';
+                showModalView('modal-overtime-hours-view');
+            });
+
+            overtimeNightBtn.addEventListener('click', () => {
+                selectedOvertimeShift = 'night';
+                showModalView('modal-overtime-hours-view');
+            });
+
 
             sickBtn.addEventListener('click', () => { updateDayData({ type: 'sick', value: 'AM', class: 'am' }); });
             strikeBtn.addEventListener('click', () => { updateDayData({ type: 'strike', value: 'Grève', class: 'strike' }); });
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType;
+                    const leaveType = btn.dataset.leave-type;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
                 });
             });
             
-            saveOvertimeWeekendBtn.addEventListener('click', () => {
-                 const hours = parseInt(overtimeWeekendHoursSelect.value);
-                 if (hours === 0) return;
-                 let formattedString = `+${hours}h`;
-                 updateDayData({ type: 'overtime', value: formattedString, class: 'overtime' });
-            });
+            saveOvertimeBtn.addEventListener('click', () => {
+                 const hours = parseInt(overtimeHoursSelect.value);
+                 if (hours === 0) {
+                     closeModalFunc();
+                     return;
+                 }
+                 const formattedString = `+${hours}h`;
 
-            saveOvertimeWeekdayBtn.addEventListener('click', () => {
-                 const hours = parseInt(overtimeWeekdayHoursSelect.value);
-                 if (hours === 0) return;
-                 let formattedString = `+${hours}h`;
-                 updateDayData({ type: 'overtime', value: formattedString, class: 'overtime' });
+                 if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
+                     updateDayData({
+                         type: 'overtime-weekend',
+                         shiftValue: shiftNames[selectedOvertimeShift],
+                         shiftClass: selectedOvertimeShift,
+                         overtimeValue: formattedString
+                     });
+                 } else {
+                     updateDayData({
+                         type: 'overtime',
+                         value: formattedString,
+                         class: 'overtime'
+                     });
+                 }
             });
 
 
