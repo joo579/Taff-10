@@ -483,11 +483,18 @@
 
         /* --- Ajustements pour les modales de sélection --- */
         #modal-overtime-view .modal-grid,
-        #modal-rec-view .modal-grid,
-        #modal-overtime-weekday-view .modal-grid {
+        #modal-rec-view .modal-grid {
              grid-template-columns: 1fr 1fr;
              gap: 10px;
              max-width: 250px;
+             margin: 0 auto;
+        }
+        
+        /* Ajustement pour le sélecteur d'heures supp en semaine pour le centrer */
+        #modal-overtime-weekday-view .modal-grid {
+             grid-template-columns: 1fr; /* Une seule colonne */
+             gap: 10px;
+             max-width: 120px; /* Largeur réduite pour un sélecteur unique */
              margin: 0 auto;
         }
 
@@ -616,10 +623,6 @@
                             <label>Heures</label>
                             <select id="overtime-weekday-hours" class="modal-control"></select>
                          </div>
-                         <div class="form-group">
-                            <label>Minutes</label>
-                            <select id="overtime-weekday-minutes" class="modal-control"></select>
-                         </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -706,7 +709,6 @@
             const saveRecBtn = document.getElementById('save-rec-btn');
 
             const overtimeWeekdayHoursSelect = document.getElementById('overtime-weekday-hours');
-            const overtimeWeekdayMinutesSelect = document.getElementById('overtime-weekday-minutes');
             const saveOvertimeWeekdayBtn = document.getElementById('save-overtime-weekday-btn');
 
             const goToLeaveBtn = document.getElementById('btn-go-to-leave');
@@ -930,11 +932,6 @@
                 option.value = i;
                 option.textContent = `${String(i).padStart(2, '0')}min`;
                 recMinutesSelect.appendChild(option);
-
-                const option2 = document.createElement('option');
-                option2.value = i;
-                option2.textContent = `${String(i).padStart(2, '0')}min`;
-                overtimeWeekdayMinutesSelect.appendChild(option2);
             }
             
             for (let i = 1; i <= 12; i++) {
@@ -1035,9 +1032,8 @@
             
             saveOvertimeWeekdayBtn.addEventListener('click', () => {
                  const hours = parseInt(overtimeWeekdayHoursSelect.value);
-                 const minutes = parseInt(overtimeWeekdayMinutesSelect.value);
-                 if (hours === 0 && minutes === 0) return;
-                 let formattedString = (minutes === 0) ? `+${hours}h` : `+${hours}h${String(minutes).padStart(2, '0')}`;
+                 if (hours === 0) return;
+                 let formattedString = `+${hours}h`;
                  updateDayData({ type: 'overtime', value: formattedString, class: 'overtime' });
             });
 
