@@ -536,6 +536,23 @@
             color: var(--primary-color);
             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
         }
+
+        .settings-category {
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+        }
+
+        .settings-category h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -566,6 +583,15 @@
 
         <div id="settings-view" class="view hidden">
             <h1>Paramètres</h1>
+            <div class="settings-category">
+                <h2>Pause de la 1ère semaine</h2>
+            </div>
+            <div class="settings-category">
+                <h2>Jour férié</h2>
+            </div>
+            <div class="settings-category">
+                <h2>Nombre de congés de bases</h2>
+            </div>
         </div>
     </div>
 
@@ -1068,7 +1094,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType;
+                    const leaveType = btn.dataset.leave-type;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
