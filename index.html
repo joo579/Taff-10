@@ -437,7 +437,11 @@
         #current-data-display .extra-info {
             color: #333; 
         }
-
+        /* Cible les pastilles de week-end dans le modal pour un style spécifique */
+        #current-data-display .overtime {
+            color: var(--bg-color);
+        }
+        
         .data-entry {
             display: flex;
             align-items: center;
@@ -841,18 +845,29 @@
                 if (dataForDay && dataForDay.length > 0) {
                     currentDataDisplay.innerHTML = '';
                     dataForDay.forEach((data, index) => {
-                        let valueToDisplay = data.value;
+                        let dataEntryHTML;
                         if (data.type === 'overtime-weekend') {
-                            valueToDisplay = `${data.shiftValue} (${data.overtimeValue})`;
+                             dataEntryHTML = `
+                                <div class="data-entry">
+                                    <span>
+                                        <span class="extra-info ${data.shiftClass}">${data.shiftValue}</span>
+                                        <span class="extra-info overtime">${data.overtimeValue}</span>
+                                    </span>
+                                    <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée">
+                                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    </button>
+                                </div>
+                             `;
+                        } else {
+                            dataEntryHTML = `
+                                <div class="data-entry">
+                                    <span><span class="extra-info ${data.class || ''}">${data.value}</span></span>
+                                    <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée">
+                                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    </button>
+                                </div>
+                            `;
                         }
-                        const dataEntryHTML = `
-                            <div class="data-entry">
-                                <span><span class="extra-info ${data.class || ''}">${valueToDisplay}</span></span>
-                                <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée">
-                                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                </button>
-                            </div>
-                        `;
                         currentDataDisplay.innerHTML += dataEntryHTML;
                     });
                     btnAddSecondData.disabled = dataForDay.length >= 2;
