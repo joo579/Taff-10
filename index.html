@@ -613,14 +613,6 @@
                 <span id="month-display"></span>
                 <button id="next-month" class="nav-button">&gt;</button>
             </div>
-
-            <div id="shift-selector">
-                <select id="start-shift">
-                    <option value="morning">Matin (1ère sem.)</option>
-                    <option value="night">Nuit (1ère sem.)</option>
-                    <option value="pm">PM (1ère sem.)</option>
-                </select>
-            </div>
             
             <div id="calendar-container">
                 <div id="calendar-body"></div>
@@ -647,6 +639,15 @@
                  <div class="header">
                      <button class="back-btn"><</button>
                      <h1>Pause de la 1ère semaine</h1>
+                 </div>
+                 <div class="settings-container">
+                     <div id="shift-selector">
+                          <select id="start-shift">
+                              <option value="morning">Matin</option>
+                              <option value="night">Nuit</option>
+                              <option value="pm">PM</option>
+                          </select>
+                      </div>
                  </div>
              </div>
 
@@ -877,8 +878,13 @@
                 if (dayOfWeek === 0) dayOfWeek = 7; 
                 let currentDay = new Date(firstDayOfMonth);
                 currentDay.setDate(currentDay.getDate() - (dayOfWeek - 1));
-                const startShiftIndex = shifts.indexOf(startShiftSelect.value);
+                
+                const startShift = localStorage.getItem('startShift') || 'morning';
+                const startShiftIndex = shifts.indexOf(startShift);
+                
                 const currentWeekNumber = getWeekNumber(today);
+                const firstDayOf2025 = new Date('2025-01-01');
+                const firstWeekOf2025 = getWeekNumber(firstDayOf2025);
 
                 for (let i = 0; i < 6; i++) {
                     const weekIndicator = document.createElement('div');
@@ -919,9 +925,19 @@
                         
                         const dayOfWeekForShift = currentDay.getDay(); 
                         if (dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
-                            const currentWeek = getWeekNumber(currentDay);
-                            const weekDiff = currentWeek - 1; 
-                            const shiftIndex = (startShiftIndex + weekDiff + (shifts.length * 50)) % shifts.length;
+                            const yearForShift = currentDay.getFullYear();
+                            const weekForShift = getWeekNumber(currentDay);
+                            
+                            const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
+                            let weekDiff = weekForShift - firstWeekOfYear;
+                            
+                            if (yearForShift > 2025) {
+                                let firstWeekNextYear = getWeekNumber(new Date(yearForShift, 0, 1));
+                                let weeksInPreviousYear = getWeekNumber(new Date(yearForShift - 1, 11, 31)) - firstWeekOf2025 + 1;
+                                weekDiff = weeksInPreviousYear + (weekForShift - firstWeekNextYear);
+                            }
+
+                            const shiftIndex = (startShiftIndex + weekDiff) % shifts.length;
                             const currentShift = shifts[shiftIndex];
                             const shiftDiv = document.createElement('div');
                             shiftDiv.className = `shift ${currentShift}`;
