@@ -170,6 +170,13 @@
             text-align: center;
         }
         
+        /* Style pour la case du jour actuel */
+        .today .day-wrapper {
+            box-shadow: 
+                inset 0 0 0 3px var(--primary-color), /* Bordure interne */
+                5px 5px 10px var(--shadow-dark), 
+                -5px -5px 10px var(--shadow-light);
+        }
         .today .day-number {
             color: var(--primary-color);
         }
@@ -1228,7 +1235,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType;
+                    const leaveType = btn.dataset.leave-type;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
