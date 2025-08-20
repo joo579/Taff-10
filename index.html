@@ -583,9 +583,10 @@
              position: relative;
         }
         .sub-view .header h1 {
-             font-size: 1.4rem; /* Réduit la taille de la police pour éviter les chevauchements */
-             margin: 0 10px;
+             font-size: 1.4rem;
+             margin: 0;
              text-align: center;
+             flex-grow: 1;
         }
         .sub-view .header .back-btn {
              position: absolute;
@@ -596,7 +597,8 @@
              border-radius: 50%;
              box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
              color: var(--text-color);
-        }
+             flex-grow: 0;
+         }
          .sub-view .header .back-btn:active {
              box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
          }
