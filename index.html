@@ -599,6 +599,33 @@
          .sub-view .header .back-btn:active {
              box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
          }
+
+        /* Nouveaux styles pour les boutons bascule */
+        .shift-toggle-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .shift-toggle-btn {
+            padding: 15px 25px;
+            border-radius: 12px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .shift-toggle-btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+        }
+        .shift-toggle-btn.active {
+            color: var(--primary-color);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+        }
+
     </style>
 </head>
 <body>
@@ -641,13 +668,14 @@
                      <h1>Pause de la 1ère semaine</h1>
                  </div>
                  <div class="settings-container">
-                     <div id="shift-selector">
-                          <select id="start-shift">
-                              <option value="morning">Matin</option>
-                              <option value="night">Nuit</option>
-                              <option value="pm">PM</option>
-                          </select>
-                      </div>
+                    <div class="form-group">
+                        <label>Type de pause</label>
+                        <div id="shift-toggle-group" class="shift-toggle-group">
+                            <button class="shift-toggle-btn" data-shift-type="morning">Matin</button>
+                            <button class="shift-toggle-btn" data-shift-type="night">Nuit</button>
+                            <button class="shift-toggle-btn" data-shift-type="pm">PM</button>
+                        </div>
+                    </div>
                  </div>
              </div>
 
@@ -790,7 +818,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const calendarBody = document.getElementById('calendar-body');
             const monthDisplay = document.getElementById('month-display');
-            const startShiftSelect = document.getElementById('start-shift');
+            const shiftToggleBtns = document.querySelectorAll('.shift-toggle-btn');
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
             
@@ -928,13 +956,12 @@
                             const yearForShift = currentDay.getFullYear();
                             const weekForShift = getWeekNumber(currentDay);
                             
-                            const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
-                            let weekDiff = weekForShift - firstWeekOfYear;
-                            
-                            if (yearForShift > 2025) {
-                                let firstWeekNextYear = getWeekNumber(new Date(yearForShift, 0, 1));
-                                let weeksInPreviousYear = getWeekNumber(new Date(yearForShift - 1, 11, 31)) - firstWeekOf2025 + 1;
-                                weekDiff = weeksInPreviousYear + (weekForShift - firstWeekNextYear);
+                            let weekDiff;
+                            if (yearForShift < 2025) {
+                                weekDiff = 0; // Pas de shifts affichés pour les années antérieures
+                            } else {
+                                const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
+                                weekDiff = weekForShift - firstWeekOf2025;
                             }
 
                             const shiftIndex = (startShiftIndex + weekDiff) % shifts.length;
@@ -1126,10 +1153,15 @@
                  document.getElementById(activeId).classList.add('active');
             }
 
-            startShiftSelect.addEventListener('change', () => {
-                 localStorage.setItem('startShift', startShiftSelect.value);
-                 generateCalendar();
+            shiftToggleBtns.forEach(btn => {
+                 btn.addEventListener('click', () => {
+                     shiftToggleBtns.forEach(b => b.classList.remove('active'));
+                     btn.classList.add('active');
+                     localStorage.setItem('startShift', btn.dataset.shiftType);
+                     generateCalendar();
+                 });
             });
+
             prevMonthBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 generateCalendar();
@@ -1284,7 +1316,12 @@
             });
 
             const savedShift = localStorage.getItem('startShift');
-            if (savedShift) startShiftSelect.value = savedShift;
+            if (savedShift) {
+                const activeBtn = document.querySelector(`.shift-toggle-btn[data-shift-type="${savedShift}"]`);
+                if (activeBtn) activeBtn.classList.add('active');
+            } else {
+                shiftToggleBtns[0].classList.add('active');
+            }
             
             generateCalendar();
         });
