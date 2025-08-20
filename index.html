@@ -537,22 +537,67 @@
             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
         }
 
+        /* Styles de la page Paramètres */
+        .settings-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
         .settings-category {
             background-color: var(--bg-color);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 25px;
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-align: center; /* Centre le texte */
+            display: flex; /* Utilise Flexbox pour centrer le contenu */
+            justify-content: center; /* Centre horizontalement */
+            align-items: center; /* Centre verticalement */
         }
-
         .settings-category h2 {
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 15px;
+            margin: 0;
             text-align: center;
         }
+        .settings-category:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+        }
+
+        .sub-view {
+             display: none;
+             flex-direction: column;
+             flex-grow: 1;
+        }
+        .sub-view.active {
+            display: flex;
+        }
+        .sub-view .header {
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             margin-bottom: 20px;
+             position: relative;
+        }
+        .sub-view .header h1 {
+             margin: 0;
+        }
+        .sub-view .header .back-btn {
+             position: absolute;
+             left: 0;
+             padding: 5px;
+             width: 40px;
+             height: 40px;
+             border-radius: 50%;
+             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+             color: var(--text-color);
+        }
+         .sub-view .header .back-btn:active {
+             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+         }
     </style>
 </head>
 <body>
@@ -583,15 +628,41 @@
 
         <div id="settings-view" class="view hidden">
             <h1>Paramètres</h1>
-            <div class="settings-category">
-                <h2>Pause de la 1ère semaine</h2>
+            <div id="settings-main-view" class="sub-view active">
+                 <div class="settings-container">
+                    <button class="settings-category" data-target-view="settings-pause-view">
+                         <h2>Pause de la 1ère semaine</h2>
+                    </button>
+                    <button class="settings-category" data-target-view="settings-holiday-view">
+                         <h2>Jour férié</h2>
+                    </button>
+                    <button class="settings-category" data-target-view="settings-leave-view">
+                         <h2>Nombre de congés de bases</h2>
+                    </button>
+                 </div>
             </div>
-            <div class="settings-category">
-                <h2>Jour férié</h2>
-            </div>
-            <div class="settings-category">
-                <h2>Nombre de congés de bases</h2>
-            </div>
+
+             <div id="settings-pause-view" class="sub-view hidden">
+                 <div class="header">
+                     <button class="back-btn"><</button>
+                     <h1>Pause de la 1ère semaine</h1>
+                 </div>
+             </div>
+
+             <div id="settings-holiday-view" class="sub-view hidden">
+                 <div class="header">
+                     <button class="back-btn"><</button>
+                     <h1>Jour férié</h1>
+                 </div>
+             </div>
+
+             <div id="settings-leave-view" class="sub-view hidden">
+                 <div class="header">
+                     <button class="back-btn"><</button>
+                     <h1>Nombre de congés de bases</h1>
+                 </div>
+             </div>
+
         </div>
     </div>
 
@@ -763,6 +834,10 @@
 
             const calendarView = document.getElementById('calendar-view');
             const settingsView = document.getElementById('settings-view');
+            const settingsMainView = document.getElementById('settings-main-view');
+            const settingsCategoryBtns = document.querySelectorAll('.settings-category');
+            const settingsBackBtns = document.querySelectorAll('#settings-view .back-btn');
+            const allSubViews = document.querySelectorAll('#settings-view .sub-view');
 
             let currentDate = new Date();
             let today = new Date();
@@ -1017,6 +1092,16 @@
                 document.getElementById(viewId).classList.add('active');
             }
 
+            function showSettingsSubView(viewId) {
+                allSubViews.forEach(view => {
+                    view.classList.remove('active');
+                    view.classList.add('hidden');
+                });
+                document.getElementById(viewId).classList.remove('hidden');
+                document.getElementById(viewId).classList.add('active');
+            }
+
+
             function updateNavActiveState(activeId) {
                  document.querySelectorAll('.nav-item').forEach(item => {
                     item.classList.remove('active');
@@ -1094,7 +1179,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leave-type;
+                    const leaveType = btn.dataset.leaveType;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
@@ -1166,6 +1251,19 @@
                 e.preventDefault();
                 showView('settings-view');
                 updateNavActiveState('nav-parametres');
+            });
+
+            settingsCategoryBtns.forEach(btn => {
+                 btn.addEventListener('click', (e) => {
+                     const targetViewId = e.currentTarget.dataset.targetView;
+                     showSettingsSubView(targetViewId);
+                 });
+            });
+
+            settingsBackBtns.forEach(btn => {
+                 btn.addEventListener('click', () => {
+                     showSettingsSubView('settings-main-view');
+                 });
             });
 
             const savedShift = localStorage.getItem('startShift');
