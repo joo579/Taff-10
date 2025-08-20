@@ -44,6 +44,15 @@
             padding-right: calc(15px + env(safe-area-inset-right));
         }
 
+        .view {
+            display: none;
+            flex-grow: 1;
+            flex-direction: column;
+        }
+        .view.active {
+            display: flex;
+        }
+
         h1 {
             text-align: center;
             color: var(--primary-color);
@@ -532,24 +541,31 @@
 <body>
 
     <div id="app-container">
-        <h1>Mon Horaire</h1>
         
-        <div id="controls">
-            <button id="prev-month" class="nav-button">&lt;</button>
-            <span id="month-display"></span>
-            <button id="next-month" class="nav-button">&gt;</button>
+        <div id="calendar-view" class="view active">
+            <h1>Mon Horaire</h1>
+        
+            <div id="controls">
+                <button id="prev-month" class="nav-button">&lt;</button>
+                <span id="month-display"></span>
+                <button id="next-month" class="nav-button">&gt;</button>
+            </div>
+
+            <div id="shift-selector">
+                <select id="start-shift">
+                    <option value="morning">Matin (1ère sem.)</option>
+                    <option value="night">Nuit (1ère sem.)</option>
+                    <option value="pm">PM (1ère sem.)</option>
+                </select>
+            </div>
+            
+            <div id="calendar-container">
+                <div id="calendar-body"></div>
+            </div>
         </div>
 
-        <div id="shift-selector">
-            <select id="start-shift">
-                <option value="morning">Matin (1ère sem.)</option>
-                <option value="night">Nuit (1ère sem.)</option>
-                <option value="pm">PM (1ère sem.)</option>
-            </select>
-        </div>
-        
-        <div id="calendar-container">
-            <div id="calendar-body"></div>
+        <div id="settings-view" class="view hidden">
+            <h1>Paramètres</h1>
         </div>
     </div>
 
@@ -715,8 +731,12 @@
 
             const leaveTypeBtns = document.querySelectorAll('.leave-type-btn');
             
+            const navHoraireBtn = document.getElementById('nav-horaire');
             const navSoldeBtn = document.getElementById('nav-solde');
             const navParametresBtn = document.getElementById('nav-parametres');
+
+            const calendarView = document.getElementById('calendar-view');
+            const settingsView = document.getElementById('settings-view');
 
             let currentDate = new Date();
             let today = new Date();
@@ -962,6 +982,22 @@
                 recMinutesSelect.appendChild(option);
             }
             
+            function showView(viewId) {
+                document.querySelectorAll('.view').forEach(view => {
+                    view.classList.remove('active');
+                    view.classList.add('hidden');
+                });
+                document.getElementById(viewId).classList.remove('hidden');
+                document.getElementById(viewId).classList.add('active');
+            }
+
+            function updateNavActiveState(activeId) {
+                 document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                 });
+                 document.getElementById(activeId).classList.add('active');
+            }
+
             startShiftSelect.addEventListener('change', () => {
                  localStorage.setItem('startShift', startShiftSelect.value);
                  generateCalendar();
@@ -1089,6 +1125,12 @@
                 updateDayData({ type: 'leave', value: formattedString, class: 'rec' });
             });
 
+            navHoraireBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showView('calendar-view');
+                updateNavActiveState('nav-horaire');
+            });
+            
             navSoldeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 alert("La page Solde n'est pas encore disponible.");
@@ -1096,7 +1138,8 @@
 
             navParametresBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert("La page Paramètres n'est pas encore disponible.");
+                showView('settings-view');
+                updateNavActiveState('nav-parametres');
             });
 
             const savedShift = localStorage.getItem('startShift');
