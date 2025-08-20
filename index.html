@@ -154,6 +154,10 @@
             text-align: center;
         }
         
+        .today .day-number {
+            color: var(--primary-color);
+        }
+
         .day-content {
             flex-grow: 1;
             overflow: hidden;
@@ -708,6 +712,7 @@
             const navParametresBtn = document.getElementById('nav-parametres');
 
             let currentDate = new Date();
+            let today = new Date();
             let selectedDay = null;
             let dayData = JSON.parse(localStorage.getItem('dayData')) || {};
             let editMode = 'overwrite';
@@ -716,6 +721,15 @@
 
             const shifts = ['morning', 'night', 'pm'];
             const shiftNames = { morning: 'Matin', night: 'Nuit', pm: 'PM' };
+
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const todayFormatted = formatDate(today);
             
             function getWeekNumber(d) {
                 d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -809,8 +823,13 @@
 
                         if (currentMonth !== month) {
                            cell.classList.add('other-month');
-                        } else if (dayOfWeekForShift === 0 || dayOfWeekForShift === 6) {
-                            cell.classList.add('weekend');
+                        } else {
+                            if (dayOfWeekForShift === 0 || dayOfWeekForShift === 6) {
+                                cell.classList.add('weekend');
+                            }
+                            if (dateString === todayFormatted) {
+                                cell.classList.add('today');
+                            }
                         }
                         
                         dayContent.appendChild(shiftPlaceholder);
