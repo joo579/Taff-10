@@ -277,7 +277,7 @@
         #modal-main-view .modal-grid .modal-control:active,
         #modal-jp-view .modal-grid .modal-control:active,
         #modal-overtime-type-view .modal-grid .modal-control:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3-6px rgba(0, 255, 255, 0.1);
         }
 
         .modal-control.leave-type-btn {
@@ -440,38 +440,40 @@
             margin-bottom: 0;
         }
         .data-entry span {
-            color: var(--text-color-dark);
+            color: var(--text-color);
             font-weight: 300;
         }
         .data-entry .extra-info {
             display: inline-block;
             width: auto;
             padding: 4px 10px;
-            margin-left: 10px;
+            margin-right: 15px;
+            font-weight: 600;
         }
         
         .delete-data-btn {
-            background-color: #e74c3c;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-left: 15px;
-        }
-        .delete-data-btn::before {
-            content: '';
-            display: block;
-            width: 10px;
-            height: 2px;
-            background-color: white;
-            border-radius: 1px;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            color: #e74c3c;
         }
         .delete-data-btn:active {
-            box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+            color: #c0392b;
+            transform: scale(0.9);
+        }
+
+        .delete-data-btn svg {
+            fill: currentColor;
+            width: 100%;
+            height: 100%;
         }
 
         /* Styles pour les sélecteurs d'heures supplémentaires, week-end et semaine */
@@ -838,7 +840,9 @@
                         const dataEntryHTML = `
                             <div class="data-entry">
                                 <span><span class="extra-info ${data.class || ''}">${valueToDisplay}</span></span>
-                                <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée"></button>
+                                <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée">
+                                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </button>
                             </div>
                         `;
                         currentDataDisplay.innerHTML += dataEntryHTML;
@@ -973,7 +977,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leave-type;
+                    const leaveType = btn.dataset.leaveType;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
