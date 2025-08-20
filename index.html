@@ -125,6 +125,10 @@
             color: var(--text-color);
             margin-left: 4px;
         }
+        
+        .week-indicator.current-week span {
+            color: var(--primary-color);
+        }
 
         .day-wrapper {
             width: 100%;
@@ -749,12 +753,18 @@
                 let currentDay = new Date(firstDayOfMonth);
                 currentDay.setDate(currentDay.getDate() - (dayOfWeek - 1));
                 const startShiftIndex = shifts.indexOf(startShiftSelect.value);
+                const currentWeekNumber = getWeekNumber(today);
 
                 for (let i = 0; i < 6; i++) {
                     const weekIndicator = document.createElement('div');
                     weekIndicator.className = 'week-indicator';
                     const weekNumber = getWeekNumber(currentDay);
                     weekIndicator.innerHTML = `Semaine <span>${weekNumber}</span>`;
+                    
+                    if (weekNumber === currentWeekNumber && currentDay.getFullYear() === today.getFullYear()) {
+                        weekIndicator.classList.add('current-week');
+                    }
+                    
                     calendarBody.appendChild(weekIndicator);
                     
                     for (let j = 0; j < 7; j++) {
