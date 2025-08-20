@@ -576,29 +576,26 @@
             display: flex;
         }
         .sub-view .header {
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             margin-bottom: 20px;
              position: relative;
+             margin-bottom: 20px;
         }
         .sub-view .header h1 {
              font-size: 1.4rem;
              margin: 0;
              text-align: center;
-             flex-grow: 1;
+             line-height: 40px; /* Alignement vertical avec le bouton */
         }
         .sub-view .header .back-btn {
              position: absolute;
              left: 0;
+             top: 0;
              padding: 5px;
              width: 40px;
              height: 40px;
              border-radius: 50%;
              box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
              color: var(--text-color);
-             flex-grow: 0;
-         }
+        }
          .sub-view .header .back-btn:active {
              box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
          }
