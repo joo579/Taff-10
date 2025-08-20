@@ -583,7 +583,9 @@
              position: relative;
         }
         .sub-view .header h1 {
-             margin: 0;
+             font-size: 1.4rem; /* Réduit la taille de la police pour éviter les chevauchements */
+             margin: 0 10px;
+             text-align: center;
         }
         .sub-view .header .back-btn {
              position: absolute;
@@ -627,8 +629,8 @@
         </div>
 
         <div id="settings-view" class="view hidden">
-            <h1>Paramètres</h1>
             <div id="settings-main-view" class="sub-view active">
+                 <h1>Paramètres</h1>
                  <div class="settings-container">
                     <button class="settings-category" data-target-view="settings-pause-view">
                          <h2>Pause de la 1ère semaine</h2>
