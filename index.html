@@ -621,7 +621,7 @@
         }
 
         /* Styles spécifiques à la page "Jour Férié" */
-        .settings-container #holidays-list {
+        #holidays-list {
             list-style: none;
             padding: 0;
         }
@@ -716,10 +716,8 @@
         }
         
         #holiday-modal .modal-holiday-btn-group .modal-control {
-            /* === MODIFICATION ICI : HAUTEUR DIVISÉE PAR 2 === */
             aspect-ratio: auto;
-            padding: 7.5px 25px; 
-            /* === MODIFICATION ICI : TEXTE ET OMBRAGE EN CYAN === */
+            padding: 15px 25px;
             color: var(--primary-color);
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
             /* Ajout pour centrer le texte sur les boutons */
@@ -746,17 +744,6 @@
         
         #holiday-modal .modal-view.hidden {
              display: none;
-        }
-        
-        /* Styles spécifiques pour le groupe de boutons du modal férié */
-        #holiday-main-view .modal-grid.shift-group,
-        #holiday-main-view .modal-grid.option-group {
-             grid-template-columns: repeat(3, 1fr);
-             gap: 10px;
-        }
-        
-        #holiday-main-view .modal-grid.option-group {
-             grid-template-columns: 1fr 1fr;
         }
 
     </style>
@@ -945,7 +932,7 @@
               <div id="holiday-main-view" class="modal-view">
                 <div class="form-group">
                     <label>Travailler un jour férié</label>
-                    <div class="modal-grid shift-group">
+                    <div class="modal-grid">
                         <button class="modal-control holiday-shift-btn" data-shift-type="morning">Matin</button>
                         <button class="modal-control holiday-shift-btn" data-shift-type="night">Nuit</button>
                         <button class="modal-control holiday-shift-btn" data-shift-type="pm">PM</button>
@@ -953,7 +940,7 @@
                 </div>
                 <div class="form-group">
                     <label>Option</label>
-                    <div class="modal-grid option-group">
+                    <div class="modal-grid">
                         <button id="holiday-rec-btn" class="modal-control">À récupérer</button>
                         <button id="holiday-pay-btn" class="modal-control">À payer</button>
                     </div>
@@ -1607,7 +1594,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leave-type;
+                    const leaveType = btn.dataset.leaveType;
                     if (leaveType === 'JP') showDayModalView('modal-jp-view');
                     else if (leaveType === 'REC') showDayModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
