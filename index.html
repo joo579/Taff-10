@@ -28,1631 +28,1076 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            margin: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        #app-container {
+        .container {
             width: 100%;
-            min-height: 10vh;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            padding-top: calc(15px + env(safe-area-inset-top));
-            padding-bottom: calc(85px + env(safe-area-inset-bottom));
-            padding-left: calc(15px + env(safe-area-inset-left));
-            padding-right: calc(15px + env(safe-area-inset-right));
+            max-width: 600px;
+            padding: 0 16px;
+            margin-top: calc(32px + env(safe-area-inset-top));
+            margin-bottom: calc(96px + env(safe-area-inset-bottom));
         }
 
-        .view {
-            display: none;
-            flex-grow: 1;
-            flex-direction: column;
-        }
-        .view.active {
-            display: flex;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            font-weight: 600;
-            font-size: 1.8rem;
-            margin-top: 0;
-            margin-bottom: 20px;
+        .calendar {
+            background-color: var(--bg-color);
+            border-radius: 20px;
+            box-shadow: 
+                -8px -8px 16px var(--shadow-light),
+                8px 8px 16px var(--shadow-dark);
+            padding: 24px;
+            width: 100%;
+            margin-bottom: 24px;
+            
         }
 
-        #controls {
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
-        .nav-button, button, select {
-            border: none;
-            outline: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-        }
-
-        .nav-button:active, button:active, select:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-            color: var(--primary-color);
-        }
-
-        .nav-button {
-            padding: 12px;
-            font-size: 1.2rem;
-            line-height: 1;
-        }
-
-        #month-display {
-            font-size: 1.2rem;
+        .calendar-header h2 {
+            font-size: 1.5rem;
             font-weight: 600;
-            text-transform: capitalize;
-        }
-        
-        #shift-selector {
+            margin: 0;
             text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #start-shift {
-            padding: 10px 15px;
-            font-size: 0.9rem;
-            appearance: none;
-            text-align: center;
-        }
-
-        #calendar-container {
             flex-grow: 1;
-            display: flex;
-            flex-direction: column;
         }
-        
-        #calendar-body {
+
+        .nav-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--text-color-dark);
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            color: var(--primary-color);
+            box-shadow: 
+                -2px -2px 4px var(--shadow-light),
+                2px 2px 4px var(--shadow-dark);
+        }
+
+        .weekdays {
             display: grid;
-            grid-template-columns: 1.4fr 1.4fr 1.4fr 1.4fr 1.4fr 1fr 1fr;
-            gap: 5px;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 8px;
         }
-        
-        .week-indicator {
-            grid-column: 1 / -1;
-            text-align: left;
-            font-size: 0.7rem;
+
+        .weekdays div {
             font-weight: 600;
             color: var(--text-color-dark);
-            padding: 4px 0 0 4px;
-        }
-        .week-indicator span {
-            color: var(--text-color);
-            margin-left: 4px;
-        }
-        
-        .week-indicator.current-week {
-            color: var(--primary-color);
-        }
-        .week-indicator.current-week span {
-            color: var(--primary-color);
         }
 
-        .day-wrapper {
-            width: 100%;
-            aspect-ratio: 4 / 5;
-            border-radius: 10px;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-cell {
+            position: relative;
+            background-color: var(--bg-color);
+            padding: 12px 0 8px 0;
+            border-radius: 12px;
+            box-shadow: 
+                inset -2px -2px 4px var(--shadow-light),
+                inset 2px 2px 4px var(--shadow-dark);
+            text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            padding: 6px 4px;
+            transition: all 0.3s ease;
+            height: 80px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .day-cell:active .day-wrapper {
-             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+        .day-cell:hover {
+            box-shadow: 
+                -2px -2px 6px var(--shadow-light),
+                2px 2px 6px var(--shadow-dark);
+        }
+        
+        .day-cell.current-day {
+            box-shadow: 
+                -4px -4px 8px var(--shadow-light),
+                4px 4px 8px var(--shadow-dark);
+            border: 2px solid var(--primary-color);
+        }
+
+        .day-cell.holiday {
+            background-color: #3f4751;
+            box-shadow: 
+                -2px -2px 4px rgba(255, 255, 255, 0.08),
+                2px 2px 4px rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--holiday-color);
+        }
+
+        .day-cell.holiday-hidden {
+            opacity: 0.5;
+            border-color: transparent;
         }
 
         .day-number {
+            font-size: 1.2rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            padding-bottom: 3px;
-            margin-bottom: 3px;
-            border-bottom: 1px solid var(--text-color-dark);
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
-        }
-        
-        /* Style pour la case du jour actuel */
-        .today .day-wrapper {
-            box-shadow: 
-                inset 0 0 0 3px var(--primary-color), /* Bordure interne */
-                5px 5px 10px var(--shadow-dark), 
-                -5px -5px 10px var(--shadow-light);
-        }
-        .today .day-number {
-            color: var(--primary-color);
+            line-height: 1;
         }
 
-        .day-content {
-            flex-grow: 1;
-            overflow: hidden;
+        .day-info {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            gap: 2px;
-        }
-
-        .shift-placeholder, .extra-placeholder, .extra-placeholder-2 {
             width: 100%;
-            min-height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 0 4px;
+            overflow: hidden;
+            flex-grow: 1;
         }
 
-        .other-month .day-wrapper { opacity: 0.4; pointer-events: none; }
-        .weekend .day-wrapper { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
-        
-        /* Style pour les jours fériés */
-        .holiday .day-wrapper {
-            background-color: var(--holiday-color);
-            color: #333; /* Texte plus sombre pour contraste */
-        }
-        .holiday .day-number {
-            color: #333; /* Texte plus sombre pour contraste */
-            border-bottom-color: rgba(0,0,0,0.2);
-        }
-
-        /* Pastille "Férié" */
-        .ferie-pill {
-            background-color: black;
-            color: white;
-            font-size: 0.6rem;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-
-        .shift {
+        .shift, .extra-info {
             font-size: 0.7rem;
             font-weight: 600;
-            padding: 2px;
-            border-radius: 4px;
-            color: #fff;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-top: 2px;
             width: 100%;
-            text-align: center;
-        }
-
-        .morning { background-color: var(--morning-color); color: #333; }
-        .night { background-color: var(--night-color); }
-        .pm { background-color: var(--pm-color); }
-        
-        .extra-info {
-            display: block;
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 2px;
-            border-radius: 4px;
-            width: 100%;
-            text-align: center;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: center;
         }
 
-        .overtime { background-color: #3498db; color: var(--bg-color); }
-        .cl { background-color: rgb(197, 217, 241); color: #333; }
-        .jp { background-color: rgb(242, 220, 219); color: #333; }
-        .cel { background-color: rgb(218, 238, 243); color: #333; }
-        .anc { background-color: rgb(253, 233, 217); color: #333; }
-        .am { background-color: rgb(255, 0, 0); color: white; }
-        .rec { background-color: #888; color: white; }
-        .strike { background-color: red; color: white; }
+        .shift.morning { background-color: var(--morning-color); color: var(--bg-color); }
+        .shift.night { background-color: var(--night-color); color: white; }
+        .shift.pm { background-color: var(--pm-color); color: white; }
 
+        .extra-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+        
+        .extra-info.holiday-work { background-color: rgba(255, 255, 0, 0.6); color: black; }
+        .extra-info.vacation-cl { background-color: #8a2be2; color: white; }
+        .extra-info.vacation-jp { background-color: #dc143c; color: white; }
+        .extra-info.vacation-cel { background-color: #00bfff; color: white; }
+        .extra-info.vacation-anc { background-color: #ff4500; color: white; }
+        .extra-info.vacation-rec { background-color: #32cd32; color: white; }
+        .extra-info.strike { background-color: #ff0000; color: white; }
+        .extra-info.sick { background-color: #4b0082; color: white; }
+        .extra-info.overtime { background-color: #ff8c00; color: white; }
+
+        .data-entry {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 0;
+            width: 100%;
+        }
+        
+        .data-entry .extra-info {
+            flex-grow: 1;
+        }
+
+        /* Modal */
         .modal {
-            position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); 
-            display: flex; 
-            justify-content: center; align-items: flex-end;
-            visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal.visible { visibility: visible; opacity: 1; }
-        
-        .modal-content {
-            background: var(--bg-color); 
-            padding: 20px;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0px -5px 20px rgba(0,0,0,0.3);
-            width: 100%; max-width: 450px; position: relative;
-            transform: translateY(100%);
-            transition: transform 0.3s ease-out;
-        }
-        .modal.visible .modal-content { transform: translateY(0); }
-        
-        #modal-title { 
-            text-align: center; 
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-top: 0; 
-            margin-bottom: 25px; 
-            color: var(--text-color); 
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
         }
 
-        .modal-view.hidden { display: none; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: block;
+        .modal-content {
+            background-color: var(--bg-color);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 
+                -8px -8px 16px var(--shadow-light),
+                8px 8px 16px var(--shadow-dark);
+            width: 90%;
+            max-width: 400px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal.is-visible .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--text-color-dark);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background-color: transparent;
+            border: none;
             color: var(--text-color-dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body label {
+            display: block;
             margin-bottom: 8px;
             font-weight: 300;
-            font-size: 0.9rem;
-        }
-        
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .modal-grid .modal-control {
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-weight: 600;
-            padding: 5px;
-        }
-        
-        #modal-main-view .modal-grid .modal-control,
-        #modal-jp-view .modal-grid .modal-control,
-        #modal-overtime-type-view .modal-grid .modal-control {
-            color: var(--primary-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
         }
 
-        #modal-main-view .modal-grid .modal-control:active,
-        #modal-jp-view .modal-grid .modal-control:active,
-        #modal-overtime-type-view .modal-grid .modal-control:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3-6px rgba(0, 255, 255, 0.1);
-        }
-
-        .modal-control.leave-type-btn {
-            color: var(--primary-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
-            aspect-ratio: 1 / 1;
-            padding: 5px;
-        }
-        .modal-control.leave-type-btn:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
-        }
-        
-        .leave-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .leave-grid-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        #leave-row-1 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        #leave-row-1 .leave-type-btn {
-            transform: translateX(50%);
-        }
-
-        .modal-control {
-            font-family: 'Poppins', sans-serif;
+        .modal-body input[type="number"], .modal-body select {
             width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            background: #23272f;
             border: none;
-            border-radius: 12px;
-            background: var(--bg-color);
+            border-radius: 8px;
             color: var(--text-color);
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-            font-size: 1rem;
-            text-align: center;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.05);
             -webkit-appearance: none;
+        }
+
+        .modal-body select {
+            padding-right: 30px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="%23e0e0e0" d="M9.293 12.95l-.707.707L4.586 9.586a1 1 0 010-1.414l.707-.707L10 12.586l4.293-4.293a1 1 0 011.414 0l.707.707a1 1 0 010 1.414L10 12.586l-4.293-4.293z" /></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            -webkit-appearance: none;
+            -moz-appearance: none;
             appearance: none;
         }
-        .modal-control:active {
-            box-shadow: inset 5px 5px 8px var(--shadow-dark), inset -5px -5px 8px var(--shadow-light);
-        }
-        .btn-primary {
+
+        .modal-body button {
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            background: var(--primary-color);
-            color: var(--bg-color);
+            padding: 12px;
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 1.1rem;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            border: none;
+            border-radius: 12px;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            cursor: pointer;
+            box-shadow: 
+                -4px -4px 8px var(--shadow-light),
+                4px 4px 8px var(--shadow-dark);
+            transition: all 0.3s ease;
         }
-        .btn-primary:active { background-color: #00e0e0; }
+
+        .modal-body button:hover {
+            box-shadow: 
+                -2px -2px 4px var(--shadow-light),
+                2px 2px 4px var(--shadow-dark);
+        }
+
+        .modal-body .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            margin-top: 8px;
+        }
         
-        #bottom-nav {
+        .modal-body .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-body .button-group button {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 0.9rem;
+            background: #3f4751;
+            color: var(--text-color);
+            border-radius: 8px;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .modal-body .button-group button.active {
+            box-shadow: 
+                -4px -4px 8px var(--shadow-light),
+                4px 4px 8px var(--shadow-dark);
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        .modal-body .button-group button:hover:not(.active) {
+            background-color: #4b525e;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--text-color-dark);
+            padding-bottom: 4px;
+        }
+        
+        .overtime-section {
+            display: none;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             background-color: var(--bg-color);
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 -3px 10px var(--shadow-dark);
-            padding-top: 8px;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1;
         }
+
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            width: 50%;
+            padding: 12px 0;
+            cursor: pointer;
             color: var(--text-color-dark);
-            text-decoration: none;
-            transition: color 0.2s ease-in-out;
+            transition: color 0.3s ease;
         }
-        .nav-item svg {
-            width: 28px;
-            height: 28px;
-            margin-bottom: 4px;
-            fill: currentColor;
-        }
-        .nav-item span {
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
+        
         .nav-item.active {
             color: var(--primary-color);
         }
-        
-        #modal-rec-view .modal-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            max-width: 250px;
-            margin: 0 auto;
-        }
 
-        #modal-rec-view .form-group label {
-             text-align: center;
-        }
-
-        #modal-rec-view .modal-grid .modal-control {
-            aspect-ratio: auto;
-            height: auto;
-            padding-top: 15px;
-            padding-bottom: 15px;
-            text-align-last: center;
-            color: var(--primary-color);
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
-        }
-
-        #modal-back-arrow {
-            position: absolute;
-            top: 22px;
-            left: 20px;
-            background: none;
-            box-shadow: none;
-            width: 28px;
-            height: 28px;
-            padding: 0;
-            color: var(--text-color-dark);
-            transition: color 0.2s ease-in-out;
-        }
-        #modal-back-arrow.hidden {
-            display: none;
-        }
-        #modal-back-arrow svg {
-            width: 100%;
-            height: 100%;
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
             fill: currentColor;
         }
-        #modal-back-arrow:active {
-            box-shadow: none;
-            color: var(--primary-color);
+
+        .nav-text {
+            font-size: 0.75rem;
+            font-weight: 600;
         }
         
-        #modal-main-view .modal-grid .modal-control {
-            aspect-ratio: auto;
-            padding-top: 25px;
-            padding-bottom: 25px;
+        .tab-content {
+            display: none;
         }
         
-        #current-data-display {
-            background: #252931;
-            padding: 15px;
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Settings Tab */
+        .settings-content h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        
+        .settings-section {
+            background-color: var(--bg-color);
             border-radius: 12px;
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-            max-width: 250px;
-            margin: 0 auto;
+            box-shadow: 
+                -4px -4px 8px var(--shadow-light),
+                4px 4px 8px var(--shadow-dark);
+            padding: 16px;
+            margin-bottom: 24px;
         }
         
-        /* Cible les pastilles dans le cadre des données et leur applique une couleur de police noire */
-        #current-data-display .extra-info {
-            color: #333; 
+        .settings-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--text-color-dark);
+            padding-bottom: 4px;
         }
-        /* Cible les pastilles de week-end dans le modal pour un style spécifique */
-        #current-data-display .overtime {
+        
+        .settings-section p {
+            font-size: 0.9rem;
+            color: var(--text-color-dark);
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+        
+        .settings-controls {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .settings-controls label {
+            margin-bottom: 8px;
+            font-weight: 300;
+        }
+
+        .shift-toggle-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .shift-toggle-btn {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: #3f4751;
+            color: var(--text-color);
+            cursor: pointer;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .shift-toggle-btn.active {
+            box-shadow: 
+                -4px -4px 8px var(--shadow-light),
+                4px 4px 8px var(--shadow-dark);
+            background-color: var(--primary-color);
             color: var(--bg-color);
         }
         
-        .data-entry {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .data-entry:last-child {
-            margin-bottom: 0;
-        }
-        .data-entry span {
-            color: var(--text-color);
-            font-weight: 300;
-        }
-        .data-entry .extra-info {
-            display: inline-block;
-            width: auto;
-            padding: 4px 10px;
-            margin-right: 15px;
-            font-weight: 600;
+        .shift-toggle-btn:hover:not(.active) {
+            background-color: #4b525e;
         }
         
-        .delete-data-btn {
-            background: none;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            color: #e74c3c;
-        }
-        .delete-data-btn:active {
-            color: #c0392b;
-            transform: scale(0.9);
-        }
-
-        .delete-data-btn svg {
-            fill: currentColor;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Styles pour les sélecteurs d'heures supplémentaires, week-end et semaine */
-        #modal-overtime-hours-view .modal-grid {
-             grid-template-columns: 1fr;
-             gap: 10px;
-             max-width: 120px;
-             margin: 0 auto;
-        }
-
-        #modal-overtime-hours-view .form-group label,
-        #modal-overtime-type-view .form-group label {
-             text-align: center;
-        }
-        
-        #modal-overtime-type-view .modal-grid {
-             max-width: 250px;
-             margin: 0 auto;
-        }
-
-        #modal-overtime-hours-view .modal-grid .modal-control,
-        #modal-overtime-type-view .modal-grid .modal-control {
-            aspect-ratio: auto;
-            height: auto;
-            padding-top: 15px;
-            padding-bottom: 15px;
-            text-align-last: center;
-            color: var(--primary-color);
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
-        }
-
-        /* Styles de la page Paramètres */
-        .settings-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .settings-category {
-            background-color: var(--bg-color);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            text-align: center; /* Centre le texte */
-            display: flex; /* Utilise Flexbox pour centrer le contenu */
-            justify-content: center; /* Centre horizontalement */
-            align-items: center; /* Centre verticalement */
-        }
-        .settings-category h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin: 0;
-            text-align: center;
-        }
-        .settings-category:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-        }
-
-        .sub-view {
-             display: none;
-             flex-direction: column;
-             flex-grow: 1;
-        }
-        .sub-view.active {
-            display: flex;
-        }
-        .sub-view .header {
-             position: relative;
-             margin-bottom: 20px;
-        }
-        .sub-view .header h1 {
-             font-size: 1.4rem;
-             margin: 0;
-             margin-top: 50px; /* Espace entre le bouton et le titre */
-             text-align: center;
-        }
-        .sub-view .header .back-btn {
-             position: absolute;
-             left: 0;
-             top: 0;
-             padding: 5px;
-             width: 40px;
-             height: 40px;
-             border-radius: 50%;
-             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-             color: var(--text-color);
-        }
-         .sub-view .header .back-btn:active {
-             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-         }
-
-        /* Nouveaux styles pour les boutons bascule */
-        .shift-toggle-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .shift-toggle-btn {
-            padding: 15px 25px;
-            border-radius: 12px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-        }
-        .shift-toggle-btn:active {
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-        }
-        .shift-toggle-btn.active {
-            color: var(--primary-color);
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-        }
-
-        /* Styles spécifiques à la page "Jour Férié" */
-        #holidays-list {
+        .holidays-list {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
-        #holiday-list-header {
-             text-align: center;
-             margin-bottom: 20px;
-        }
-        .holiday-item {
-            background-color: #252931;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-            margin-bottom: 10px;
+        
+        .holidays-list li {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.95rem;
-            color: var(--text-color);
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .holiday-item.disabled {
-            opacity: 0.5;
-            text-decoration: line-through;
-            font-style: italic;
+
+        .holidays-list li:last-child {
+            border-bottom: none;
         }
-        .holiday-item span {
+
+        .holiday-info {
+            display: flex;
+            flex-direction: column;
             flex-grow: 1;
-            padding-right: 10px;
+        }
+
+        .holiday-name {
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .holiday-date {
+            font-size: 0.8rem;
+            color: var(--text-color-dark);
         }
 
         .holiday-toggle-btn {
-            background: none;
+            background: transparent;
             border: none;
-            box-shadow: none;
-            padding: 0;
+            cursor: pointer;
             width: 32px;
             height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            color: #e74c3c;
         }
+
         .holiday-toggle-btn svg {
-            fill: currentColor;
-            width: 100%;
-            height: 100%;
-        }
-        .holiday-toggle-btn.active {
-            color: #27ae60;
-        }
-
-        .holiday-toggle-btn:active {
-            transform: scale(0.9);
-        }
-
-        /* NOUVEAU: Styles pour la vue des jours fériés dans le modal */
-        #modal-holiday-view .modal-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            fill: var(--text-color);
+            transition: fill 0.3s ease;
         }
         
-        .modal-holiday-btn-group .modal-control {
-            aspect-ratio: auto;
-            padding: 15px 25px;
-            color: var(--primary-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
+        .holiday-toggle-btn.active svg {
+            fill: var(--primary-color);
         }
         
-        .modal-holiday-btn-group .modal-control:active {
-             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
+        .holiday-toggle-btn.red svg {
+            fill: #dc3545;
         }
-
-        .modal-holiday-btn-group .modal-control.active {
-             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
-             color: var(--primary-color);
-        }
+        
+        
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        
-        <div id="calendar-view" class="view active">
-            <h1>Mon Horaire</h1>
-        
-            <div id="controls">
-                <button id="prev-month" class="nav-button">&lt;</button>
-                <span id="month-display"></span>
-                <button id="next-month" class="nav-button">&gt;</button>
-            </div>
-            
-            <div id="calendar-container">
-                <div id="calendar-body"></div>
+    <main class="container">
+        <div id="schedule-tab" class="tab-content active">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button id="prevBtn" class="nav-btn">&lt;</button>
+                    <h2 id="monthYear"></h2>
+                    <button id="nextBtn" class="nav-btn">&gt;</button>
+                </div>
+                <div class="weekdays">
+                    <div>Lun</div>
+                    <div>Mar</div>
+                    <div>Mer</div>
+                    <div>Jeu</div>
+                    <div>Ven</div>
+                    <div>Sam</div>
+                    <div>Dim</div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
             </div>
         </div>
 
-        <div id="settings-view" class="view hidden">
-            <div id="settings-main-view" class="sub-view active">
-                 <h1>Paramètres</h1>
-                 <div class="settings-container">
-                    <button class="settings-category" data-target-view="settings-pause-view">
-                         <h2>Pause de la 1ère semaine</h2>
-                    </button>
-                    <button class="settings-category" data-target-view="settings-holiday-view">
-                         <h2>Jour férié</h2>
-                    </button>
-                    <button class="settings-category" data-target-view="settings-leave-view">
-                         <h2>Nombre de congés de bases</h2>
-                    </button>
-                 </div>
+        <div id="settings-tab" class="tab-content">
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h4>Pause 1ère semaine</h4>
+                    <p>Sélectionnez le type de shift du premier jour de votre première semaine (Lundi).</p>
+                    <div class="shift-toggle-container">
+                        <button class="shift-toggle-btn" data-shift-type="morning">Matin</button>
+                        <button class="shift-toggle-btn" data-shift-type="night">Nuit</button>
+                        <button class="shift-toggle-btn" data-shift-type="pm">PM</button>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Jours Fériés</h4>
+                    <p>Masquez les jours fériés de l'affichage du calendrier.</p>
+                    <ul class="holidays-list" id="holidaysList"></ul>
+                </div>
+
+                <div class="settings-section">
+                    <h4>Congés de base</h4>
+                    <p>Définissez vos jours de congés de base.</p>
+                    </div>
             </div>
-
-             <div id="settings-pause-view" class="sub-view hidden">
-                 <div class="header">
-                     <button class="back-btn"><</button>
-                     <h1>Pause de la 1ère semaine</h1>
-                 </div>
-                 <div class="settings-container">
-                    <div class="form-group">
-                        <label>Type de pause</label>
-                        <div id="shift-toggle-group" class="shift-toggle-group">
-                            <button class="shift-toggle-btn" data-shift-type="morning">Matin</button>
-                            <button class="shift-toggle-btn" data-shift-type="night">Nuit</button>
-                            <button class="shift-toggle-btn" data-shift-type="pm">PM</button>
-                        </div>
-                    </div>
-                 </div>
-             </div>
-
-             <div id="settings-holiday-view" class="sub-view hidden">
-                 <div class="header">
-                     <button class="back-btn"><</button>
-                     <h1>Jour férié</h1>
-                 </div>
-                 <div class="settings-container">
-                    <div id="holiday-list-header">
-                       <p>Cliquez sur un jour férié pour l'afficher ou le masquer dans le calendrier.</p>
-                    </div>
-                    <ul id="holidays-list">
-                        </ul>
-                 </div>
-             </div>
-
-             <div id="settings-leave-view" class="sub-view hidden">
-                 <div class="header">
-                     <button class="back-btn"><</button>
-                     <h1>Nombre de congés de bases</h1>
-                 </div>
-             </div>
-
         </div>
-    </div>
+    </main>
 
-    <div id="day-modal" class="modal">
+    <div id="dayModal" class="modal">
         <div class="modal-content">
-            <button id="modal-back-arrow" class="hidden" aria-label="Retour">
-                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-            </button>
-            
-            <h2 id="modal-title"></h2>
-            
-            <div id="modal-main-view" class="modal-view">
-                <div class="form-group">
-                    <label>Action</label>
-                    <div class="modal-options modal-grid">
-                        <button id="btn-go-to-leave" class="modal-control">Congé</button>
-                        <button id="btn-go-to-overtime" class="modal-control">Heures supp.</button>
-                        <button id="btn-strike" class="modal-control">Grève</button>
-                        <button id="btn-sick" class="modal-control">Malade</button>
-                    </div>
-                </div>
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <span class="close-btn">&times;</span>
             </div>
+            <div class="modal-body">
+                <div class="button-group" id="vacationButtons">
+                    <button data-vacation-type="vacation-cl">CL</button>
+                    <button data-vacation-type="vacation-jp">JP</button>
+                    <button data-vacation-type="vacation-cel">CEL</button>
+                    <button data-vacation-type="vacation-anc">ANC</button>
+                    <button data-vacation-type="vacation-rec">REC</button>
+                </div>
 
-            <div id="modal-manage-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Données actuelles</label>
-                    <div id="current-data-display"></div>
+                <div class="button-group">
+                    <button id="overtimeBtn">Heures Supp.</button>
+                    <button id="strikeBtn" data-extra-info="strike">Grève</button>
+                    <button id="sickBtn" data-extra-info="sick">Maladie</button>
                 </div>
-                <div class="form-group">
-                    <button id="btn-add-second-data" class="btn-primary">Ajouter une 2e donnée</button>
-                </div>
-            </div>
-            
-            <div id="modal-leave-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Type de congé</label>
-                    <div class="leave-options">
-                        <div class="leave-grid-row">
-                             <button class="modal-control leave-type-btn" data-leave-type="CL">CL</button>
-                             <button class="modal-control leave-type-btn" data-leave-type="JP">JP</button>
-                        </div>
-                        <div class="leave-grid-row">
-                            <button class="modal-control leave-type-btn" data-leave-type="CEL">CEL</button>
-                            <button class="modal-control leave-type-btn" data-leave-type="ANC">ANC</button>
-                            <button class="modal-control leave-type-btn" data-leave-type="REC">REC</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-             <div id="modal-overtime-type-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Choisir le shift</label>
-                    <div class="modal-grid">
-                        <button id="overtime-morning-btn" class="modal-control">Matin</button>
-                        <button id="overtime-night-btn" class="modal-control">Nuit</button>
-                    </div>
+                <div class="overtime-section" id="overtimeSection">
+                    <label for="overtimeHours">Heures supplémentaires:</label>
+                    <input type="number" id="overtimeHours" placeholder="Entrez le nombre d'heures">
                 </div>
-            </div>
 
-             <div id="modal-overtime-hours-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Heures supplémentaires</label>
-                     <div class="modal-grid">
-                         <div class="form-group">
-                            <label>Heures</label>
-                            <select id="overtime-hours" class="modal-control"></select>
-                         </div>
+                <div id="holidayChoice" style="display:none;">
+                    <p>Ce jour est un jour férié. Vous avez le choix:</p>
+                    <div class="button-group">
+                        <button id="holidayWorkPaidBtn">Payé</button>
+                        <button id="holidayWorkRecuperationBtn">Récupération</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <button id="save-overtime-btn" class="btn-primary">Sauvegarder</button>
-                </div>
-            </div>
 
-
-            <div id="modal-jp-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Choisir une option pour JP</label>
-                    <div class="modal-grid">
-                        <button id="jp-entier" class="modal-control">Entier</button>
-                        <button id="jp-demi" class="modal-control">Demi</button>
-                    </div>
-                </div>
+                <button id="saveBtn">Sauvegarder</button>
+                <button id="deleteBtn" class="delete-btn">Supprimer</button>
             </div>
-            <div id="modal-rec-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Saisir la durée de la récupération</label>
-                     <div class="modal-grid">
-                         <div class="form-group">
-                            <label>Heures</label>
-                            <select id="rec-hours" class="modal-control"></select>
-                         </div>
-                         <div class="form-group">
-                            <label>Minutes</label>
-                            <select id="rec-minutes" class="modal-control"></select>
-                         </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <button id="save-rec-btn" class="btn-primary">Sauvegarder</button>
-                </div>
-            </div>
-            
-            <div id="modal-holiday-view" class="modal-view hidden">
-                <div class="form-group">
-                    <label>Travailler un jour férié</label>
-                    <div class="modal-grid modal-holiday-btn-group">
-                        <button class="modal-control holiday-shift-btn" data-shift-type="morning">Matin</button>
-                        <button class="modal-control holiday-shift-btn" data-shift-type="night">Nuit</button>
-                        <button class="modal-control holiday-shift-btn" data-shift-type="pm">PM</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Option</label>
-                    <div class="modal-grid modal-holiday-btn-group">
-                        <button id="holiday-rec-btn" class="modal-control">À récupérer</button>
-                        <button id="holiday-pay-btn" class="modal-control">À payer</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                     <button id="save-holiday-btn" class="btn-primary">Sauvegarder</button>
-                </div>
-            </div>
-
         </div>
     </div>
-    
-    <nav id="bottom-nav">
-        <a href="#" id="nav-horaire" class="nav-item active">
-            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zM5 8V6h14v2H5z"/></svg>
-            <span>Horaire</span>
-        </a>
-        <a href="#" id="nav-solde" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5h5v-2h-5v2zm0-3h5v-2h-5v2z"/></svg>
-            <span>Solde</span>
-        </a>
-        <a href="#" id="nav-parametres" class="nav-item">
-            <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61-.25-1.17-.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61-.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19-.15-.24-.42-.12-.64l2 3.46c.12.22.39.3.61-.22l2.49-1c.52.4 1.08.73 1.69-.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18-.49-.42l.38-2.65c.61-.25 1.17-.59-1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
-            <span>Paramètres</span>
-        </a>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" data-tab="schedule-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24">
+                <path d="M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm-5.88-6.19l3.35-3.35a.5.5 0 000-.71l-1.42-1.42a.5.5 0 00-.71 0L12 11.29l-1.34-1.34a.5.5 0 00-.71 0l-1.42 1.42a.5.5 0 000 .71l3.35 3.35a.5.5 0 00.71 0z"/>
+            </svg>
+            <span class="nav-text">Horaire</span>
+        </div>
+        <div class="nav-item" data-tab="settings-tab">
+            <svg class="nav-icon" viewBox="0 0 24 24">
+                <path d="M12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm0 2c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>
+            <span class="nav-text">Paramètres</span>
+        </div>
     </nav>
-
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const calendarBody = document.getElementById('calendar-body');
-            const monthDisplay = document.getElementById('month-display');
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const monthYear = document.getElementById('monthYear');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const dayModal = document.getElementById('dayModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const saveBtn = document.getElementById('saveBtn');
+            const deleteBtn = document.getElementById('deleteBtn');
+            const vacationButtons = document.getElementById('vacationButtons');
+            const strikeBtn = document.getElementById('strikeBtn');
+            const sickBtn = document.getElementById('sickBtn');
+            const overtimeBtn = document.getElementById('overtimeBtn');
+            const overtimeSection = document.getElementById('overtimeSection');
+            const overtimeHoursInput = document.getElementById('overtimeHours');
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
             const shiftToggleBtns = document.querySelectorAll('.shift-toggle-btn');
-            const prevMonthBtn = document.getElementById('prev-month');
-            const nextMonthBtn = document.getElementById('next-month');
-            
-            const modal = document.getElementById('day-modal');
-            const modalTitle = document.getElementById('modal-title');
-            
-            const mainView = document.getElementById('modal-main-view');
-            const manageView = document.getElementById('modal-manage-view');
-            const leaveView = document.getElementById('modal-leave-view');
-            const overtimeTypeView = document.getElementById('modal-overtime-type-view');
-            const overtimeHoursView = document.getElementById('modal-overtime-hours-view');
-            const jpView = document.getElementById('modal-jp-view');
-            const recView = document.getElementById('modal-rec-view');
-            const holidayView = document.getElementById('modal-holiday-view');
-            const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView, holidayView];
-
-            const modalBackArrow = document.getElementById('modal-back-arrow');
-            
-            const currentDataDisplay = document.getElementById('current-data-display');
-            const btnAddSecondData = document.getElementById('btn-add-second-data');
-            
-            const jpEntierBtn = document.getElementById('jp-entier');
-            const jpDemiBtn = document.getElementById('jp-demi');
-            
-            const recHoursSelect = document.getElementById('rec-hours');
-            const recMinutesSelect = document.getElementById('rec-minutes');
-            const saveRecBtn = document.getElementById('save-rec-btn');
-
-            const overtimeHoursSelect = document.getElementById('overtime-hours');
-            const saveOvertimeBtn = document.getElementById('save-overtime-btn');
-            const overtimeMorningBtn = document.getElementById('overtime-morning-btn');
-            const overtimeNightBtn = document.getElementById('overtime-night-btn');
-
-            const goToLeaveBtn = document.getElementById('btn-go-to-leave');
-            const sickBtn = document.getElementById('btn-sick');
-            const strikeBtn = document.getElementById('btn-strike');
-            const goToOvertimeBtn = document.getElementById('btn-go-to-overtime');
-
-            const leaveTypeBtns = document.querySelectorAll('.leave-type-btn');
-            const holidayShiftBtns = document.querySelectorAll('.holiday-shift-btn');
-            const holidayRecBtn = document.getElementById('holiday-rec-btn');
-            const holidayPayBtn = document.getElementById('holiday-pay-btn');
-            const saveHolidayBtn = document.getElementById('save-holiday-btn');
-            
-            const navHoraireBtn = document.getElementById('nav-horaire');
-            const navSoldeBtn = document.getElementById('nav-solde');
-            const navParametresBtn = document.getElementById('nav-parametres');
-
-            const calendarView = document.getElementById('calendar-view');
-            const settingsView = document.getElementById('settings-view');
-            const settingsMainView = document.getElementById('settings-main-view');
-            const settingsCategoryBtns = document.querySelectorAll('.settings-category');
-            const settingsBackBtns = document.querySelectorAll('#settings-view .back-btn');
-            const allSubViews = document.querySelectorAll('#settings-view .sub-view');
-
-            const settingsHolidayView = document.getElementById('settings-holiday-view');
-            const holidaysList = document.getElementById('holidays-list');
-
+            const holidayChoice = document.getElementById('holidayChoice');
+            const holidayWorkPaidBtn = document.getElementById('holidayWorkPaidBtn');
+            const holidayWorkRecuperationBtn = document.getElementById('holidayWorkRecuperationBtn');
+            const holidaysList = document.getElementById('holidaysList');
 
             let currentDate = new Date();
-            let today = new Date();
-            let selectedDay = null;
+            let selectedDate = null;
+            let startShift = localStorage.getItem('startShift') || 'morning'; 
+            let startShiftIndex = 0;
+
+            const shifts = ['morning', 'pm', 'night']; 
+            const shiftNames = { 'morning': 'Matin', 'pm': 'PM', 'night': 'Nuit' };
+            const holidays = [
+                { name: "Nouvel An", date: "01-01" },
+                { name: "Lundi de Pâques", date: "04-01" },
+                { name: "Fête du Travail", date: "05-01" },
+                { name: "Ascension", date: "05-09" },
+                { name: "Lundi de Pentecôte", date: "05-20" },
+                { name: "Fête nationale", date: "07-21" },
+                { name: "Assomption", date: "08-15" },
+                { name: "Toussaint", date: "11-01" },
+                { name: "Jour de l'Armistice", date: "11-11" },
+                { name: "Noël", date: "12-25" }
+            ];
+            
+            let deletedHolidays = new Set(JSON.parse(localStorage.getItem('deletedHolidays') || '[]'));
             let dayData = JSON.parse(localStorage.getItem('dayData')) || {};
-            let deletedHolidays = new Set(JSON.parse(localStorage.getItem('deletedHolidays')) || []); 
-            
-            let editMode = 'overwrite';
-            let selectedDayOfWeek = null;
-            let selectedOvertimeShift = null;
-            let selectedHolidayShift = null;
-            let selectedHolidayOption = null;
 
-            const shifts = ['morning', 'night', 'pm'];
-            const shiftNames = { morning: 'Matin', night: 'Nuit', pm: 'PM' };
+            const firstDayOf2025 = new Date('2025-01-01');
+            const firstWeekOf2025 = getWeekNumber(firstDayOf2025);
 
-            function formatDate(date) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            const todayFormatted = formatDate(today);
-            
             function getWeekNumber(d) {
                 d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-                var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-                return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                return weekNo;
             }
 
-            const masterHolidays = [
-                 'Nouvel An', 'Lundi de Pâques', 'Fête du Travail', 'Ascension',
-                 'Lundi de Pentecôte', 'Fête Nationale', 'Assomption', 'Toussaint',
-                 'Armistice', 'Noël'
-            ];
+            function isHoliday(date) {
+                const monthDay = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                const holiday = holidays.find(h => h.date === monthDay);
+                return holiday ? holiday.name : null;
+            }
 
-            function getEasterSunday(year) {
-                var a = year % 19,
-                    b = Math.floor(year / 100),
-                    c = year % 100,
-                    d = Math.floor(b / 4),
-                    e = b % 4,
-                    f = Math.floor((b / 25) + 1),
-                    g = Math.floor((b - f + 1) / 3),
-                    h = (19 * a + b - d - g + 15) % 30,
-                    i = Math.floor(c / 4),
-                    k = c % 4,
-                    l = (32 + 2 * e + 2 * i - h - k) % 7,
-                    m = Math.floor((a + 11 * h + 22 * l) / 451),
-                    month = Math.floor((h + l - 7 * m + 114) / 31),
-                    day = ((h + l - 7 * m + 114) % 31) + 1;
-                return new Date(year, month - 1, day);
+            function isHolidayWork(dateString) {
+                return (dayData[dateString] && dayData[dateString].some(d => d.type === 'holiday-work'));
+            }
+
+            function saveDayData() {
+                localStorage.setItem('dayData', JSON.stringify(dayData));
             }
             
-            function getHolidayDate(holidayName, year) {
-                let date;
-                const easter = getEasterSunday(year);
-
-                switch (holidayName) {
-                    case 'Nouvel An':
-                        date = new Date(year, 0, 1);
-                        break;
-                    case 'Lundi de Pâques':
-                        date = new Date(easter);
-                        date.setDate(easter.getDate() + 1);
-                        break;
-                    case 'Fête du Travail':
-                        date = new Date(year, 4, 1);
-                        break;
-                    case 'Ascension':
-                        date = new Date(easter);
-                        date.setDate(easter.getDate() + 39);
-                        break;
-                    case 'Lundi de Pentecôte':
-                        date = new Date(easter);
-                        date.setDate(easter.getDate() + 50);
-                        break;
-                    case 'Fête Nationale':
-                        date = new Date(year, 6, 21);
-                        break;
-                    case 'Assomption':
-                        date = new Date(year, 7, 15);
-                        break;
-                    case 'Toussaint':
-                        date = new Date(year, 10, 1);
-                        break;
-                    case 'Armistice':
-                        date = new Date(year, 10, 11);
-                        break;
-                    case 'Noël':
-                        date = new Date(year, 11, 25);
-                        break;
-                    default:
-                        return null; 
-                }
-                
-                const dayOfWeek = date.getDay();
-                if (dayOfWeek === 6) { 
-                    date.setDate(date.getDate() - 1);
-                } else if (dayOfWeek === 0) {
-                    date.setDate(date.getDate() + 1);
-                }
-                
-                return formatDate(date);
-            }
-
-            function getActiveHolidaysForYear(year) {
-                const activeHolidays = [];
-                masterHolidays.forEach(name => {
-                    if (!deletedHolidays.has(name)) {
-                        const date = getHolidayDate(name, year);
-                        if (date) {
-                            activeHolidays.push({ name, date });
-                        }
-                    }
-                });
-                return activeHolidays;
-            }
-
-            // NOUVEAU : Fonction pour vérifier si une date est un jour férié actif
-            function isHoliday(dateString) {
-                const year = new Date(dateString).getFullYear();
-                const holidays = getActiveHolidaysForYear(year);
-                return holidays.some(h => h.date === dateString);
+            function saveDeletedHolidays() {
+                localStorage.setItem('deletedHolidays', JSON.stringify(Array.from(deletedHolidays)));
             }
 
             function generateCalendar() {
-                calendarBody.innerHTML = '';
+                calendarGrid.innerHTML = '';
                 const year = currentDate.getFullYear();
                 const month = currentDate.getMonth();
-                monthDisplay.textContent = `${currentDate.toLocaleString('fr-FR', { month: 'long' })} ${year}`;
-                const firstDayOfMonth = new Date(year, month, 1);
-                let dayOfWeek = firstDayOfMonth.getDay();
-                if (dayOfWeek === 0) dayOfWeek = 7; 
-                let currentDay = new Date(firstDayOfMonth);
-                currentDay.setDate(currentDay.getDate() - (dayOfWeek - 1));
-                
-                const startShift = localStorage.getItem('startShift') || 'morning';
-                const startShiftIndex = shifts.indexOf(startShift);
-                
-                const currentWeekNumber = getWeekNumber(today);
-                const firstDayOf2025 = new Date('2025-01-01');
-                const firstWeekOf2025 = getWeekNumber(firstDayOf2025);
-                
-                const holidaysForDisplay = getActiveHolidaysForYear(year);
+                monthYear.textContent = new Date(year, month).toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
 
-                for (let i = 0; i < 6; i++) {
-                    const weekIndicator = document.createElement('div');
-                    weekIndicator.className = 'week-indicator';
-                    const weekNumber = getWeekNumber(currentDay);
-                    weekIndicator.innerHTML = `Semaine <span>${weekNumber}</span>`;
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0);
+                
+                let startDay = (firstDayOfMonth.getDay() + 6) % 7;
+                
+                for (let i = 0; i < startDay; i++) {
+                    const emptyCell = document.createElement('div');
+                    calendarGrid.appendChild(emptyCell);
+                }
+
+                for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    const currentDay = new Date(year, month, i);
+                    const today = new Date();
+                    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                    const holidayName = isHoliday(currentDay);
+                    let isHolidayForCell = false;
+
+                    dayCell.dataset.date = dateString;
+                    dayCell.innerHTML = `<span class="day-number">${i}</span><div class="day-info"></div>`;
                     
-                    if (weekNumber === currentWeekNumber && currentDay.getFullYear() === today.getFullYear()) {
-                        weekIndicator.classList.add('current-week');
+                    if (currentDay.getDate() === today.getDate() && currentDay.getMonth() === today.getMonth() && currentDay.getFullYear() === today.getFullYear()) {
+                        dayCell.classList.add('current-day');
                     }
-                    
-                    calendarBody.appendChild(weekIndicator);
-                    
-                    for (let j = 0; j < 7; j++) {
-                        const cell = document.createElement('div');
-                        cell.classList.add('day-cell');
-                        const dayOfMonth = currentDay.getDate();
-                        const currentMonth = currentDay.getMonth();
-                        const currentYear = currentDay.getFullYear();
-                        const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayOfMonth).padStart(2, '0')}`;
+
+                    if (holidayName) {
+                        isHolidayForCell = true;
+                        if (!deletedHolidays.has(holidayName)) {
+                            dayCell.classList.add('holiday');
+                        } else {
+                            dayCell.classList.add('holiday-hidden');
+                        }
+                    }
+
+                    const shiftPlaceholder = dayCell.querySelector('.day-info');
+                    const extraPlaceholder = document.createElement('div');
+                    extraPlaceholder.className = 'extra-info-container';
+                    const extraPlaceholder2 = document.createElement('div');
+                    extraPlaceholder2.className = 'extra-info-container';
+                    shiftPlaceholder.appendChild(extraPlaceholder);
+                    shiftPlaceholder.appendChild(extraPlaceholder2);
+
+                    // Logique pour le shift de base (jours de la semaine)
+                    const dayOfWeekForShift = currentDay.getDay();
+                    if (!isHolidayForCell && dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
+                        const yearForShift = currentDay.getFullYear();
+                        const weekForShift = getWeekNumber(currentDay);
                         
-                        cell.dataset.date = dateString;
-                        const dayWrapper = document.createElement('div');
-                        dayWrapper.className = 'day-wrapper';
-                        const dayNumber = document.createElement('div');
-                        dayNumber.className = 'day-number';
-                        dayNumber.textContent = dayOfMonth;
-                        dayWrapper.appendChild(dayNumber);
-                        const dayContent = document.createElement('div');
-                        dayContent.className = 'day-content';
-                        
-                        const shiftPlaceholder = document.createElement('div');
-                        shiftPlaceholder.className = 'shift-placeholder';
-                        const extraPlaceholder = document.createElement('div');
-                        extraPlaceholder.className = 'extra-placeholder';
-                        const extraPlaceholder2 = document.createElement('div');
-                        extraPlaceholder2.className = 'extra-placeholder-2';
-                        
-                        const isHolidayForCell = holidaysForDisplay.find(h => h.date === dateString);
-                        if (isHolidayForCell) {
-                            cell.classList.add('holiday');
-                            const holidayPill = document.createElement('div');
-                            holidayPill.className = 'shift ferie-pill';
-                            holidayPill.textContent = 'Férié';
-                            shiftPlaceholder.appendChild(holidayPill);
+                        let weekDiff;
+                        if (yearForShift < 2025) {
+                            weekDiff = 0;
+                        } else {
+                            const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
+                            weekDiff = weekForShift - firstWeekOf2025;
                         }
 
-                        // --- Début de la correction ---
-                        const dayOfWeekForShift = currentDay.getDay(); 
-                        if (!isHolidayForCell && dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
-                            const yearForShift = currentDay.getFullYear();
-                            const weekForShift = getWeekNumber(currentDay);
+                        let startShiftIndex = shifts.indexOf(startShift);
+                        const shiftIndex = (startShiftIndex + weekDiff) % shifts.length;
+                        const currentShift = shifts[shiftIndex];
+                        const shiftDiv = document.createElement('div');
+                        shiftDiv.className = `shift ${currentShift}`;
+                        shiftDiv.textContent = shiftNames[currentShift];
+                        shiftPlaceholder.insertBefore(shiftDiv, extraPlaceholder);
+                    }
+                    
+                    // DEBUT DE LA CORRECTION : Cette section gère l'affichage des pastilles
+                    // pour tous les jours, y compris les week-ends.
+                    const dataArrayForDay = dayData[dateString];
+                    if (dataArrayForDay && dataArrayForDay.length > 0) {
+                        let dataAdded = 0;
+                        dataArrayForDay.forEach(data => {
+                            if (dataAdded >= 2) return; 
                             
-                            let weekDiff;
-                            if (yearForShift < 2025) {
-                                weekDiff = 0;
-                            } else {
-                                const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
-                                weekDiff = weekForShift - firstWeekOf2025;
-                            }
+                            let container;
+                            if (dataAdded === 0) container = extraPlaceholder;
+                            else if (dataAdded === 1) container = extraPlaceholder2;
 
-                            const shiftIndex = (startShiftIndex + weekDiff) % shifts.length;
-                            const currentShift = shifts[shiftIndex];
-                            const shiftDiv = document.createElement('div');
-                            shiftDiv.className = `shift ${currentShift}`;
-                            shiftDiv.textContent = shiftNames[currentShift];
-                            shiftPlaceholder.appendChild(shiftDiv);
-                        } 
-
-                        const dataArrayForDay = dayData[dateString];
-                        if (dataArrayForDay && dataArrayForDay.length > 0) {
-                            dataArrayForDay.forEach((data, index) => {
-                                let container = null;
-                                if (index === 0) container = extraPlaceholder;
-                                else if (index === 1) container = extraPlaceholder2;
-
-                                if (container) {
-                                    const div = document.createElement('div');
+                            if (container) {
+                                const div = document.createElement('div');
+                                if (data.type === 'holiday-work' || data.type === 'overtime-weekend') {
+                                    const shiftInfo = document.createElement('span');
+                                    shiftInfo.className = `extra-info ${data.shiftClass || ''}`;
+                                    shiftInfo.textContent = data.shiftValue;
+                                    div.appendChild(shiftInfo);
+                                    
+                                    const overtimeInfo = document.createElement('span');
+                                    overtimeInfo.className = `extra-info overtime`;
+                                    overtimeInfo.textContent = data.overtimeValue;
+                                    div.appendChild(overtimeInfo);
+                                    div.classList.add('data-entry');
+                                } else {
                                     div.className = data.type === 'shift' ? 'shift' : 'extra-info';
                                     if (data.class) div.classList.add(data.class);
                                     div.textContent = data.value;
-                                    container.appendChild(div);
                                 }
-                            });
-                        }
-                        // --- Fin de la correction ---
 
-
-                        if (currentMonth !== month) {
-                           cell.classList.add('other-month');
-                        } else {
-                            if (currentDay.getDay() === 0 || currentDay.getDay() === 6) {
-                                cell.classList.add('weekend');
+                                if (data.type === 'overtime-weekend' || data.type === 'holiday-work') {
+                                    extraPlaceholder.innerHTML = '';
+                                    extraPlaceholder.appendChild(div);
+                                    dataAdded = 2; // Occupy both spots for clarity
+                                } else {
+                                    container.appendChild(div);
+                                    dataAdded++;
+                                }
                             }
-                            if (dateString === todayFormatted) {
-                                cell.classList.add('today');
-                            }
-                        }
-                        
-                        dayContent.appendChild(shiftPlaceholder);
-                        dayContent.appendChild(extraPlaceholder);
-                        dayContent.appendChild(extraPlaceholder2);
-                        dayWrapper.appendChild(dayContent);
-                        cell.appendChild(dayWrapper);
-                        calendarBody.appendChild(cell);
-                        currentDay.setDate(currentDay.getDate() + 1);
+                        });
                     }
-                     if (currentDay.getMonth() !== month && i >= 4) break; 
+                    // FIN DE LA CORRECTION
+
+                    dayCell.addEventListener('click', () => openModal(dayCell.dataset.date));
+                    calendarGrid.appendChild(dayCell);
+                }
+            }
+
+            function openModal(dateString) {
+                selectedDate = dateString;
+                modalTitle.textContent = selectedDate;
+                dayModal.classList.add('is-visible');
+                overtimeSection.style.display = 'none';
+                holidayChoice.style.display = 'none';
+
+                vacationButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                strikeBtn.classList.remove('active');
+                sickBtn.classList.remove('active');
+                overtimeBtn.classList.remove('active');
+                overtimeHoursInput.value = '';
+
+                deleteBtn.style.display = dayData[selectedDate] ? 'block' : 'none';
+
+                const day = new Date(selectedDate);
+                const holidayName = isHoliday(day);
+                if (holidayName && !isHolidayWork(selectedDate) && !deletedHolidays.has(holidayName)) {
+                    holidayChoice.style.display = 'block';
+                    document.getElementById('saveBtn').style.display = 'none';
+                    document.getElementById('deleteBtn').style.display = 'none';
+                    document.getElementById('overtimeBtn').style.display = 'none';
+                    document.getElementById('strikeBtn').style.display = 'none';
+                    document.getElementById('sickBtn').style.display = 'none';
+                    vacationButtons.style.display = 'none';
+
+                } else {
+                    holidayChoice.style.display = 'none';
+                    document.getElementById('saveBtn').style.display = 'block';
+                    document.getElementById('deleteBtn').style.display = 'block';
+                    document.getElementById('overtimeBtn').style.display = 'block';
+                    document.getElementById('strikeBtn').style.display = 'block';
+                    document.getElementById('sickBtn').style.display = 'block';
+                    vacationButtons.style.display = 'flex';
                 }
             }
             
-            function showModalView(viewToShow) {
-                allViews.forEach(v => v.classList.add('hidden'));
-                document.getElementById(viewToShow).classList.remove('hidden');
-
-                const isSubView = !['modal-main-view', 'modal-manage-view', 'modal-holiday-view'].includes(viewToShow);
-                modalBackArrow.classList.toggle('hidden', !isSubView);
+            function closeModal() {
+                dayModal.classList.remove('is-visible');
+                selectedDate = null;
             }
 
-            function openModal(dateStr) {
-                selectedDay = dateStr;
-                const date = new Date(selectedDay.replace(/-/g, '/'));
-                const dateString = date.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-                modalTitle.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
-                
-                selectedDayOfWeek = date.getDay();
-                selectedOvertimeShift = null;
+            const activeBtns = new Set();
 
-                selectedHolidayShift = null;
-                selectedHolidayOption = null;
-                holidayShiftBtns.forEach(btn => btn.classList.remove('active'));
-                holidayRecBtn.classList.remove('active');
-                holidayPayBtn.classList.remove('active');
+            function toggleButtonState(button, group) {
+                if (group) {
+                    group.forEach(btn => btn.classList.remove('active'));
+                }
+                button.classList.toggle('active');
+            }
 
-                const dataForDay = dayData[selectedDay];
-                if (dataForDay && dataForDay.length > 0) {
-                    currentDataDisplay.innerHTML = '';
-                    dataForDay.forEach((data, index) => {
-                        let dataEntryHTML;
-                        if (data.type === 'overtime-weekend') {
-                             dataEntryHTML = `
-                                <div class="data-entry">
-                                    <span>
-                                        <span class="extra-info ${data.shiftClass}">${data.shiftValue}</span>
-                                        <span class="extra-info overtime">${data.overtimeValue}</span>
-                                    </span>
-                                    <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée">
-                                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                    </button>
-                                </div>
-                             `;
-                        } else {
-                            dataEntryHTML = `
-                                <div class="data-entry">
-                                    <span><span class="extra-info ${data.class || ''}">${data.value}</span></span>
-                                    <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer cette donnée">
-                                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                    </button>
-                                </div>
-                            `;
-                        }
-                        currentDataDisplay.innerHTML += dataEntryHTML;
+            vacationButtons.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (button) {
+                    vacationButtons.querySelectorAll('button').forEach(btn => {
+                        if (btn !== button) btn.classList.remove('active');
                     });
-                    btnAddSecondData.disabled = dataForDay.length >= 2;
-                    showModalView('modal-manage-view');
-                } else {
-                    editMode = 'overwrite';
-                    if (isHoliday(selectedDay)) {
-                        showModalView('modal-holiday-view');
-                    } else {
-                        showModalView('modal-main-view');
-                    }
+                    button.classList.toggle('active');
+                    strikeBtn.classList.remove('active');
+                    sickBtn.classList.remove('active');
+                    overtimeBtn.classList.remove('active');
+                    overtimeSection.style.display = 'none';
                 }
-                modal.classList.add('visible');
-            }
-
-            function closeModalFunc() {
-                modal.classList.remove('visible');
-            }
-            
-            function updateDayData(newData, append = false) {
-                if (append) {
-                     if (dayData[selectedDay]) {
-                         dayData[selectedDay].push(newData);
-                     } else {
-                         dayData[selectedDay] = [newData];
-                     }
-                } else {
-                    dayData[selectedDay] = [newData];
-                }
-                localStorage.setItem('dayData', JSON.stringify(dayData));
-                generateCalendar();
-                closeModalFunc();
-            }
-
-            function deleteSingleDataItem(indexToDelete) {
-                const dataArray = dayData[selectedDay];
-                if (!dataArray) return;
-                dataArray.splice(indexToDelete, 1);
-                if (dataArray.length === 0) delete dayData[selectedDay];
-                localStorage.setItem('dayData', JSON.stringify(dayData));
-                generateCalendar();
-                closeModalFunc();
-            }
-
-            function populateOvertimeHours() {
-                overtimeHoursSelect.innerHTML = '';
-                for (let i = 0; i <= 12; i++) {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.textContent = `${i}h`;
-                    overtimeHoursSelect.appendChild(option);
-                }
-            }
-
-            populateOvertimeHours();
-
-            for (let i = 0; i <= 8; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `${i}h`;
-                recHoursSelect.appendChild(option);
-            }
-            for (let i = 0; i < 60; i += 5) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `${String(i).padStart(2, '0')}min`;
-                recMinutesSelect.appendChild(option);
-            }
-            
-            function showView(viewId) {
-                document.querySelectorAll('.view').forEach(view => {
-                    view.classList.remove('active');
-                    view.classList.add('hidden');
-                });
-                document.getElementById(viewId).classList.remove('hidden');
-                document.getElementById(viewId).classList.add('active');
-            }
-
-            function showSettingsSubView(viewId) {
-                allSubViews.forEach(view => {
-                    view.classList.remove('active');
-                    view.classList.add('hidden');
-                });
-                document.getElementById(viewId).classList.remove('hidden');
-                document.getElementById(viewId).classList.add('active');
-
-                if (viewId === 'settings-holiday-view') {
-                    renderHolidaysList();
-                }
-            }
-
-
-            function updateNavActiveState(activeId) {
-                 document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                 });
-                 document.getElementById(activeId).classList.add('active');
-            }
-
-            shiftToggleBtns.forEach(btn => {
-                 btn.addEventListener('click', () => {
-                     shiftToggleBtns.forEach(b => b.classList.remove('active'));
-                     btn.classList.add('active');
-                     localStorage.setItem('startShift', btn.dataset.shiftType);
-                     generateCalendar();
-                 });
             });
 
-            prevMonthBtn.addEventListener('click', () => {
+            strikeBtn.addEventListener('click', () => {
+                strikeBtn.classList.toggle('active');
+                vacationButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                sickBtn.classList.remove('active');
+                overtimeBtn.classList.remove('active');
+                overtimeSection.style.display = 'none';
+            });
+
+            sickBtn.addEventListener('click', () => {
+                sickBtn.classList.toggle('active');
+                vacationButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                strikeBtn.classList.remove('active');
+                overtimeBtn.classList.remove('active');
+                overtimeSection.style.display = 'none';
+            });
+
+            overtimeBtn.addEventListener('click', () => {
+                overtimeBtn.classList.toggle('active');
+                overtimeSection.style.display = 'block';
+                vacationButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                strikeBtn.classList.remove('active');
+                sickBtn.classList.remove('active');
+            });
+
+            saveBtn.addEventListener('click', () => {
+                if (selectedDate) {
+                    const data = [];
+                    const selectedVacation = vacationButtons.querySelector('button.active');
+                    const isStrike = strikeBtn.classList.contains('active');
+                    const isSick = sickBtn.classList.contains('active');
+                    const isOvertime = overtimeBtn.classList.contains('active');
+                    const overtimeHours = overtimeHoursInput.value;
+                    const dayOfWeek = new Date(selectedDate).getDay();
+                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                    if (selectedVacation) {
+                        data.push({
+                            type: 'vacation',
+                            value: selectedVacation.textContent,
+                            class: selectedVacation.dataset.vacationType
+                        });
+                    }
+                    if (isStrike) {
+                        data.push({ type: 'strike', value: 'Grève', class: 'strike' });
+                    }
+                    if (isSick) {
+                        data.push({ type: 'sick', value: 'Maladie', class: 'sick' });
+                    }
+                    if (isOvertime && overtimeHours) {
+                        if (isWeekend) {
+                            const shift = dayData[selectedDate]?.find(d => d.type === 'shift') || {};
+                            data.push({
+                                type: 'overtime-weekend',
+                                shiftValue: shift.value || '',
+                                overtimeValue: `${overtimeHours}h`,
+                                shiftClass: shift.class || ''
+                            });
+                        } else {
+                            data.push({ type: 'overtime', value: `+${overtimeHours}h`, class: 'overtime' });
+                        }
+                    }
+
+                    if (data.length > 0) {
+                        dayData[selectedDate] = data;
+                        saveDayData();
+                    } else {
+                        delete dayData[selectedDate];
+                        saveDayData();
+                    }
+                    closeModal();
+                    generateCalendar();
+                }
+            });
+
+            deleteBtn.addEventListener('click', () => {
+                if (selectedDate) {
+                    delete dayData[selectedDate];
+                    saveDayData();
+                    closeModal();
+                    generateCalendar();
+                }
+            });
+
+            holidayWorkPaidBtn.addEventListener('click', () => {
+                if (selectedDate) {
+                    const holidayName = isHoliday(new Date(selectedDate));
+                    const shiftValue = 'Payé';
+                    const shiftClass = 'holiday-work';
+                    const overtimeValue = ``; 
+                    dayData[selectedDate] = [{
+                        type: 'holiday-work',
+                        shiftValue: shiftValue,
+                        overtimeValue: overtimeValue,
+                        shiftClass: shiftClass
+                    }];
+                    saveDayData();
+                    closeModal();
+                    generateCalendar();
+                }
+            });
+
+            holidayWorkRecuperationBtn.addEventListener('click', () => {
+                if (selectedDate) {
+                    const holidayName = isHoliday(new Date(selectedDate));
+                    const shiftValue = 'Récup';
+                    const shiftClass = 'holiday-work';
+                    const overtimeValue = ''; 
+                    dayData[selectedDate] = [{
+                        type: 'holiday-work',
+                        shiftValue: shiftValue,
+                        overtimeValue: overtimeValue,
+                        shiftClass: shiftClass
+                    }];
+                    saveDayData();
+                    closeModal();
+                    generateCalendar();
+                }
+            });
+
+
+            prevBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 generateCalendar();
             });
-            nextMonthBtn.addEventListener('click', () => {
+
+            nextBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 generateCalendar();
             });
-            calendarBody.addEventListener('click', (e) => {
-                const cell = e.target.closest('.day-cell');
-                if (!cell || cell.classList.contains('other-month')) return;
-                openModal(cell.dataset.date);
-            });
-            
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModalFunc();
-            });
 
-            modalBackArrow.addEventListener('click', () => {
-                if (!overtimeHoursView.classList.contains('hidden')) {
-                    if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
-                        showModalView('modal-overtime-type-view');
-                    } else {
-                        showModalView('modal-main-view');
-                    }
-                } else if (!overtimeTypeView.classList.contains('hidden')) {
-                     showModalView('modal-main-view');
-                } else if (!jpView.classList.contains('hidden') || !recView.classList.contains('hidden')) {
-                     showModalView('modal-leave-view');
-                } else {
-                    if (dayData[selectedDay] && dayData[selectedDay].length > 0) {
-                        openModal(selectedDay);
-                    } else {
-                        showModalView('modal-main-view');
-                    }
-                }
-            });
+            document.querySelector('.close-btn').addEventListener('click', closeModal);
 
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const tabId = item.dataset.tab;
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
 
-            btnAddSecondData.addEventListener('click', () => {
-                editMode = 'append';
-                showModalView('modal-main-view');
-            });
-
-            goToLeaveBtn.addEventListener('click', () => showModalView('modal-leave-view'));
-            
-            goToOvertimeBtn.addEventListener('click', () => {
-                if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) { 
-                    showModalView('modal-overtime-type-view');
-                } else { 
-                    showModalView('modal-overtime-hours-view');
-                }
-            });
-
-            overtimeMorningBtn.addEventListener('click', () => {
-                selectedOvertimeShift = 'morning';
-                showModalView('modal-overtime-hours-view');
-            });
-
-            overtimeNightBtn.addEventListener('click', () => {
-                selectedOvertimeShift = 'night';
-                showModalView('modal-overtime-hours-view');
-            });
-
-
-            sickBtn.addEventListener('click', () => { updateDayData({ type: 'sick', value: 'AM', class: 'am' }, editMode === 'append'); });
-            strikeBtn.addEventListener('click', () => { updateDayData({ type: 'strike', value: 'Grève', class: 'strike' }, editMode === 'append'); });
-            
-            leaveTypeBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType;
-                    if (leaveType === 'JP') showModalView('modal-jp-view');
-                    else if (leaveType === 'REC') showModalView('modal-rec-view');
-                    else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() }, editMode === 'append');
+                    tabContents.forEach(tab => {
+                        if (tab.id === tabId) {
+                            tab.classList.add('active');
+                        } else {
+                            tab.classList.remove('active');
+                        }
+                    });
                 });
             });
 
-            // NOUVEAU : Gestion des événements pour les boutons de jour férié
-            holidayShiftBtns.forEach(btn => {
+            shiftToggleBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    holidayShiftBtns.forEach(b => b.classList.remove('active'));
+                    shiftToggleBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    selectedHolidayShift = btn.dataset.shiftType;
+                    startShift = btn.dataset.shiftType;
+                    localStorage.setItem('startShift', startShift);
+                    generateCalendar();
                 });
             });
-
-            holidayRecBtn.addEventListener('click', () => {
-                 holidayRecBtn.classList.add('active');
-                 holidayPayBtn.classList.remove('active');
-                 selectedHolidayOption = 'Récup';
-            });
-
-            holidayPayBtn.addEventListener('click', () => {
-                 holidayPayBtn.classList.add('active');
-                 holidayRecBtn.classList.remove('active');
-                 selectedHolidayOption = 'Payé';
-            });
             
-            saveHolidayBtn.addEventListener('click', () => {
-                if (!selectedHolidayShift || !selectedHolidayOption) {
-                    alert("Veuillez sélectionner un shift et une option pour le jour férié.");
-                    return;
-                }
-
-                // Pour un jour férié, on sauvegarde les deux informations en une seule fois
-                const data = [
-                    {
-                        type: 'holiday-work',
-                        value: shiftNames[selectedHolidayShift],
-                        class: selectedHolidayShift
-                    },
-                    {
-                        type: 'holiday-option',
-                        value: selectedHolidayOption,
-                        class: selectedHolidayOption === 'Récup' ? 'rec' : 'overtime'
-                    }
-                ];
-                
-                dayData[selectedDay] = data;
-                localStorage.setItem('dayData', JSON.stringify(dayData));
-                generateCalendar();
-                closeModalFunc();
-            });
-
-            saveOvertimeBtn.addEventListener('click', () => {
-                 const hours = parseInt(overtimeHoursSelect.value);
-                 if (hours === 0) {
-                     closeModalFunc();
-                     return;
-                 }
-                 const formattedString = `+${hours}h`;
-
-                 if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
-                     updateDayData({
-                         type: 'overtime-weekend',
-                         shiftValue: shiftNames[selectedOvertimeShift],
-                         shiftClass: selectedOvertimeShift,
-                         overtimeValue: formattedString
-                     });
-                 } else { 
-                     updateDayData({
-                         type: 'overtime',
-                         value: formattedString,
-                         class: 'overtime'
-                     }, editMode === 'append');
-                 }
-            });
-
-            currentDataDisplay.addEventListener('click', (e) => {
-                const deleteBtn = e.target.closest('.delete-data-btn');
-                if (deleteBtn) {
-                    const index = parseInt(deleteBtn.dataset.index, 10);
-                    if (confirm("Voulez-vous vraiment supprimer cette donnée ?")) {
-                        deleteSingleDataItem(index);
-                    }
-                }
-            });
-
-            jpEntierBtn.addEventListener('click', () => {
-                updateDayData({ type: 'leave', value: 'JP', class: 'jp' }, editMode === 'append');
-            });
-            jpDemiBtn.addEventListener('click', () => {
-                updateDayData({ type: 'leave', value: '1/2 JP', class: 'jp' }, editMode === 'append');
-            });
-            
-            saveRecBtn.addEventListener('click', () => {
-                const hours = parseInt(recHoursSelect.value);
-                const minutes = parseInt(recMinutesSelect.value);
-                if (hours === 0 && minutes === 0) return;
-                let formattedString = (minutes === 0) ? `${hours}h REC` : `${hours}h${String(minutes).padStart(2, '0')} REC`;
-                updateDayData({ type: 'leave', value: formattedString, class: 'rec' }, editMode === 'append');
-            });
-
-            navHoraireBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                showView('calendar-view');
-                updateNavActiveState('nav-horaire');
-            });
-            
-            navSoldeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert("La page Solde n'est pas encore disponible.");
-            });
-
-            navParametresBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                showView('settings-view');
-                updateNavActiveState('nav-parametres');
-            });
-
-            settingsCategoryBtns.forEach(btn => {
-                 btn.addEventListener('click', (e) => {
-                     const targetViewId = e.currentTarget.dataset.targetView;
-                     showSettingsSubView(targetViewId);
-                 });
-            });
-
-            settingsBackBtns.forEach(btn => {
-                 btn.addEventListener('click', () => {
-                     showSettingsSubView('settings-main-view');
-                 });
-            });
-
-            function saveDeletedHolidays() {
-                localStorage.setItem('deletedHolidays', JSON.stringify([...deletedHolidays]));
-            }
-
             function renderHolidaysList() {
                 holidaysList.innerHTML = '';
-                masterHolidays.forEach(holidayName => {
-                    const li = document.createElement('li');
-                    li.classList.add('holiday-item');
-                    li.dataset.name = holidayName;
+                const sortedHolidays = holidays.sort((a, b) => {
+                    const dateA = new Date(`2024-${a.date}`);
+                    const dateB = new Date(`2024-${b.date}`);
+                    return dateA - dateB;
+                });
 
+                sortedHolidays.forEach(holiday => {
+                    const holidayName = holiday.name;
+                    const holidayDate = new Date(`2024-${holiday.date}`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
                     const isDeleted = deletedHolidays.has(holidayName);
-                    if (isDeleted) {
-                        li.classList.add('disabled');
-                    }
+                    const iconPath = isDeleted ? 'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z' : 'M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z';
                     
-                    const iconPath = isDeleted ? 
-                         "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" : 
-                         "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z";
-
+                    const li = document.createElement('li');
                     li.innerHTML = `
-                        <span>${holidayName}</span>
+                        <div class="holiday-info">
+                            <span class="holiday-name">${holidayName}</span>
+                            <span class="holiday-date">${holidayDate}</span>
+                        </div>
                         <button class="holiday-toggle-btn ${isDeleted ? 'red' : 'active'}" data-name="${holidayName}" aria-label="${isDeleted ? 'Afficher' : 'Masquer'} ce jour férié">
                             <svg viewBox="0 0 24 24"><path d="${iconPath}"></path></svg>
                         </button>
