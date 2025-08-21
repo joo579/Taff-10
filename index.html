@@ -686,7 +686,36 @@
             transform: scale(0.9);
         }
 
-        /* NOUVEAU: Styles pour la vue des jours fériés dans le modal */
+        /* Styles pour les modals, avec la flèche de retour ré-activée sur le modal principal */
+        #day-modal .modal-content {
+            border-radius: 20px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+            background: var(--bg-color);
+        }
+        #day-modal .modal-back-arrow {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 1.5rem;
+            color: var(--text-color-dark);
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #day-modal .modal-back-arrow:hover { color: var(--text-color); }
+        #day-modal .modal-back-arrow:active { transform: scale(0.9); }
+
+        #holiday-modal .modal-content {
+            border-radius: 20px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+            background: var(--bg-color);
+        }
         #holiday-modal .modal-grid {
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
@@ -793,6 +822,7 @@
 
     <div id="day-modal" class="modal">
         <div class="modal-content">
+            <button id="modal-back-arrow" class="modal-back-arrow" style="display: none;">&lt;</button>
             
             <h2 id="modal-title"></h2>
             
@@ -958,6 +988,8 @@
             const recView = document.getElementById('modal-rec-view');
             const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView];
 
+            const modalBackArrow = document.getElementById('modal-back-arrow');
+
             const currentDataDisplay = document.getElementById('current-data-display');
             const btnAddSecondData = document.getElementById('btn-add-second-data');
             
@@ -1011,6 +1043,7 @@
             let selectedOvertimeShift = null;
             let selectedHolidayShift = null;
             let selectedHolidayOption = null;
+            let currentModalView = 'modal-main-view';
 
             const shifts = ['morning', 'night', 'pm'];
             const shiftNames = { morning: 'Matin', night: 'Nuit', pm: 'PM' };
@@ -1270,6 +1303,12 @@
             function showDayModalView(viewToShow) {
                 allViews.forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewToShow).classList.remove('hidden');
+                currentModalView = viewToShow;
+                if (currentModalView === 'modal-main-view') {
+                    modalBackArrow.style.display = 'none';
+                } else {
+                    modalBackArrow.style.display = 'block';
+                }
             }
 
             function closeModals() {
@@ -1476,6 +1515,22 @@
                  if (e.target === holidayModal) closeModals();
             });
 
+            modalBackArrow.addEventListener('click', () => {
+                 if (currentModalView === 'modal-leave-view' || 
+                     currentModalView === 'modal-overtime-type-view' || 
+                     currentModalView === 'modal-manage-view' || 
+                     currentModalView === 'modal-jp-view' || 
+                     currentModalView === 'modal-rec-view') {
+                     showDayModalView('modal-main-view');
+                 } else if (currentModalView === 'modal-overtime-hours-view') {
+                     if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
+                         showDayModalView('modal-overtime-type-view');
+                     } else {
+                         showDayModalView('modal-main-view');
+                     }
+                 }
+            });
+
             btnAddSecondData.addEventListener('click', () => {
                 editMode = 'append';
                 showDayModalView('modal-main-view');
@@ -1583,13 +1638,13 @@
                          shiftValue: shiftNames[selectedOvertimeShift],
                          shiftClass: selectedOvertimeShift,
                          overtimeValue: formattedString
-                     });
+                     }, editMode === 'append');
                  } else { 
                      updateDayData({
                          type: 'overtime',
                          value: formattedString,
                          class: 'overtime'
-                     });
+                     }, editMode === 'append');
                  }
             });
 
