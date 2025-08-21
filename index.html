@@ -217,6 +217,9 @@
         .ferie-pill {
             background-color: black;
             color: white;
+            font-size: 0.6rem;
+            padding: 2px 4px;
+            border-radius: 4px;
         }
 
         .shift {
@@ -819,11 +822,11 @@
                 <div class="form-group">
                     <label>Type de congé</label>
                     <div class="leave-options">
-                        <div id="leave-row-1" class="leave-grid-row">
+                        <div class="leave-grid-row">
                              <button class="modal-control leave-type-btn" data-leave-type="CL">CL</button>
                              <button class="modal-control leave-type-btn" data-leave-type="JP">JP</button>
                         </div>
-                        <div id="leave-row-2" class="leave-grid-row">
+                        <div class="leave-grid-row">
                             <button class="modal-control leave-type-btn" data-leave-type="CEL">CEL</button>
                             <button class="modal-control leave-type-btn" data-leave-type="ANC">ANC</button>
                             <button class="modal-control leave-type-btn" data-leave-type="REC">REC</button>
@@ -945,6 +948,7 @@
             const strikeBtn = document.getElementById('btn-strike');
             const goToOvertimeBtn = document.getElementById('btn-go-to-overtime');
 
+            // Correction: Utilisez querySelectorAll pour cibler tous les boutons de congé par leur classe
             const leaveTypeBtns = document.querySelectorAll('.leave-type-btn');
             
             const navHoraireBtn = document.getElementById('nav-horaire');
@@ -1438,7 +1442,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leave-type;
+                    const leaveType = btn.dataset.leaveType; // Correction de l'accès à l'attribut
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
