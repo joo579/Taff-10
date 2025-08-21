@@ -440,31 +440,6 @@
             box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
         }
 
-        #modal-back-arrow {
-            position: absolute;
-            top: 22px;
-            left: 20px;
-            background: none;
-            box-shadow: none;
-            width: 28px;
-            height: 28px;
-            padding: 0;
-            color: var(--text-color-dark);
-            transition: color 0.2s ease-in-out;
-        }
-        #modal-back-arrow.hidden {
-            display: none;
-        }
-        #modal-back-arrow svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
-        }
-        #modal-back-arrow:active {
-            box-shadow: none;
-            color: var(--primary-color);
-        }
-
         #modal-main-view .modal-grid .modal-control {
             aspect-ratio: auto;
             padding-top: 25px;
@@ -712,26 +687,33 @@
         }
 
         /* NOUVEAU: Styles pour la vue des jours fériés dans le modal */
-        #modal-holiday-view .modal-grid {
+        #holiday-modal .modal-grid {
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
         
-        .modal-holiday-btn-group .modal-control {
+        #holiday-modal .modal-holiday-btn-group .modal-control {
             aspect-ratio: auto;
             padding: 15px 25px;
             color: var(--primary-color);
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
         }
         
-        .modal-holiday-btn-group .modal-control:active {
+        #holiday-modal .modal-holiday-btn-group .modal-control:active {
              box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
         }
 
-        .modal-holiday-btn-group .modal-control.active {
+        #holiday-modal .modal-holiday-btn-group .modal-control.active {
              box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
              color: var(--primary-color);
         }
+
+        .modal-main-holiday-view {
+             display: flex;
+             flex-direction: column;
+             gap: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -811,9 +793,6 @@
 
     <div id="day-modal" class="modal">
         <div class="modal-content">
-            <button id="modal-back-arrow" class="hidden" aria-label="Retour">
-                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-            </button>
             
             <h2 id="modal-title"></h2>
             
@@ -909,8 +888,14 @@
                     <button id="save-rec-btn" class="btn-primary">Sauvegarder</button>
                 </div>
             </div>
-            
-            <div id="modal-holiday-view" class="modal-view hidden">
+
+        </div>
+    </div>
+    
+    <div id="holiday-modal" class="modal">
+         <div class="modal-content">
+             <h2 id="holiday-modal-title"></h2>
+              <div class="modal-main-holiday-view">
                 <div class="form-group">
                     <label>Travailler un jour férié</label>
                     <div class="modal-grid modal-holiday-btn-group">
@@ -929,11 +914,13 @@
                 <div class="form-group">
                      <button id="save-holiday-btn" class="btn-primary">Sauvegarder</button>
                 </div>
-            </div>
-
-        </div>
+                <div class="form-group">
+                     <button id="remove-holiday-data-btn" class="btn-primary" style="background: #e74c3c">Supprimer les données</button>
+                </div>
+              </div>
+         </div>
     </div>
-    
+
     <nav id="bottom-nav">
         <a href="#" id="nav-horaire" class="nav-item active">
             <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zM5 8V6h14v2H5z"/></svg>
@@ -957,8 +944,10 @@
             const prevMonthBtn = document.getElementById('prev-month');
             const nextMonthBtn = document.getElementById('next-month');
             
-            const modal = document.getElementById('day-modal');
+            const dayModal = document.getElementById('day-modal');
+            const holidayModal = document.getElementById('holiday-modal');
             const modalTitle = document.getElementById('modal-title');
+            const holidayModalTitle = document.getElementById('holiday-modal-title');
             
             const mainView = document.getElementById('modal-main-view');
             const manageView = document.getElementById('modal-manage-view');
@@ -967,11 +956,8 @@
             const overtimeHoursView = document.getElementById('modal-overtime-hours-view');
             const jpView = document.getElementById('modal-jp-view');
             const recView = document.getElementById('modal-rec-view');
-            const holidayView = document.getElementById('modal-holiday-view');
-            const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView, holidayView];
+            const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView];
 
-            const modalBackArrow = document.getElementById('modal-back-arrow');
-            
             const currentDataDisplay = document.getElementById('current-data-display');
             const btnAddSecondData = document.getElementById('btn-add-second-data');
             
@@ -997,6 +983,7 @@
             const holidayRecBtn = document.getElementById('holiday-rec-btn');
             const holidayPayBtn = document.getElementById('holiday-pay-btn');
             const saveHolidayBtn = document.getElementById('save-holiday-btn');
+            const removeHolidayDataBtn = document.getElementById('remove-holiday-data-btn');
             
             const navHoraireBtn = document.getElementById('nav-horaire');
             const navSoldeBtn = document.getElementById('nav-solde');
@@ -1133,7 +1120,6 @@
                 return activeHolidays;
             }
 
-            // NOUVEAU : Fonction pour vérifier si une date est un jour férié actif
             function isHoliday(dateString) {
                 const year = new Date(dateString).getFullYear();
                 const holidays = getActiveHolidaysForYear(year);
@@ -1208,20 +1194,17 @@
 
                         const dataArrayForDay = dayData[dateString];
                         if (dataArrayForDay && dataArrayForDay.length > 0) {
-                            if (isHolidayForCell) {
-                                // Gérer les pastilles du jour férié
-                                dataArrayForDay.forEach((data, index) => {
-                                    if (data.type === 'holiday-work' || data.type === 'holiday-option') {
-                                        const extraDiv = document.createElement('span');
-                                        extraDiv.className = `extra-info ${data.class || ''}`;
-                                        extraDiv.textContent = data.value;
-                                        if (index === 0) extraPlaceholder.appendChild(extraDiv);
-                                        else if (index === 1) extraPlaceholder2.appendChild(extraDiv);
-                                    }
-                                });
-
-                            } else {
-                                // Gérer les pastilles des jours non fériés
+                             if (isHolidayForCell) {
+                                 dataArrayForDay.forEach((data, index) => {
+                                     if (data.type === 'holiday-work' || data.type === 'holiday-option') {
+                                         const extraDiv = document.createElement('span');
+                                         extraDiv.className = `extra-info ${data.class || ''}`;
+                                         extraDiv.textContent = data.value;
+                                         if (index === 0) extraPlaceholder.appendChild(extraDiv);
+                                         else if (index === 1) extraPlaceholder2.appendChild(extraDiv);
+                                     }
+                                 });
+                             } else {
                                 dataArrayForDay.forEach((data, index) => {
                                      let container = null;
                                      if (index === 0) container = shiftPlaceholder;
@@ -1236,7 +1219,7 @@
                                          container.appendChild(div);
                                      }
                                 });
-                            }
+                             }
                         } else {
                             const dayOfWeekForShift = currentDay.getDay(); 
                             if (!isHolidayForCell && dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
@@ -1284,14 +1267,17 @@
                 }
             }
             
-            function showModalView(viewToShow) {
+            function showDayModalView(viewToShow) {
                 allViews.forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewToShow).classList.remove('hidden');
-                const isSubView = !['modal-main-view', 'modal-manage-view'].includes(viewToShow);
-                modalBackArrow.classList.toggle('hidden', !isSubView);
             }
 
-            function openModal(dateStr) {
+            function closeModals() {
+                dayModal.classList.remove('visible');
+                holidayModal.classList.remove('visible');
+            }
+
+            function openDayModal(dateStr) {
                 selectedDay = dateStr;
                 const date = new Date(selectedDay.replace(/-/g, '/'));
                 const dateString = date.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -1299,13 +1285,6 @@
                 
                 selectedDayOfWeek = date.getDay();
                 selectedOvertimeShift = null;
-
-                // NOUVEAU : Réinitialiser les sélections pour les jours fériés
-                selectedHolidayShift = null;
-                selectedHolidayOption = null;
-                holidayShiftBtns.forEach(btn => btn.classList.remove('active'));
-                holidayRecBtn.classList.remove('active');
-                holidayPayBtn.classList.remove('active');
 
                 const dataForDay = dayData[selectedDay];
                 if (dataForDay && dataForDay.length > 0) {
@@ -1337,22 +1316,50 @@
                         currentDataDisplay.innerHTML += dataEntryHTML;
                     });
                     btnAddSecondData.disabled = dataForDay.length >= 2;
-                    showModalView('modal-manage-view');
+                    showDayModalView('modal-manage-view');
                 } else {
                     editMode = 'overwrite';
-                    if (isHoliday(selectedDay)) {
-                        showModalView('modal-holiday-view');
-                    } else {
-                        showModalView('modal-main-view');
-                    }
+                    showDayModalView('modal-main-view');
                 }
-                modal.classList.add('visible');
+                dayModal.classList.add('visible');
             }
 
-            function closeModalFunc() {
-                modal.classList.remove('visible');
+            function openHolidayModal(dateStr) {
+                 selectedDay = dateStr;
+                 const date = new Date(selectedDay.replace(/-/g, '/'));
+                 const dateString = date.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                 holidayModalTitle.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+                 
+                 selectedHolidayShift = null;
+                 selectedHolidayOption = null;
+                 holidayShiftBtns.forEach(btn => btn.classList.remove('active'));
+                 holidayRecBtn.classList.remove('active');
+                 holidayPayBtn.classList.remove('active');
+
+                 const holidayData = dayData[selectedDay] || [];
+                 const holidayShift = holidayData.find(d => d.type === 'holiday-work');
+                 const holidayOption = holidayData.find(d => d.type === 'holiday-option');
+
+                 if (holidayShift) {
+                     const shiftBtn = document.querySelector(`.holiday-shift-btn[data-shift-type="${holidayShift.class}"]`);
+                     if (shiftBtn) {
+                         shiftBtn.classList.add('active');
+                         selectedHolidayShift = holidayShift.class;
+                     }
+                 }
+                 if (holidayOption) {
+                     if (holidayOption.value === 'Récup') {
+                         holidayRecBtn.classList.add('active');
+                         selectedHolidayOption = 'Récup';
+                     } else if (holidayOption.value === 'Payé') {
+                         holidayPayBtn.classList.add('active');
+                         selectedHolidayOption = 'Payé';
+                     }
+                 }
+                 
+                 holidayModal.classList.add('visible');
             }
-            
+
             function updateDayData(newData, append = false) {
                 if (append) {
                      if (dayData[selectedDay]) {
@@ -1365,7 +1372,7 @@
                 }
                 localStorage.setItem('dayData', JSON.stringify(dayData));
                 generateCalendar();
-                closeModalFunc();
+                closeModals();
             }
 
             function deleteSingleDataItem(indexToDelete) {
@@ -1375,7 +1382,7 @@
                 if (dataArray.length === 0) delete dayData[selectedDay];
                 localStorage.setItem('dayData', JSON.stringify(dayData));
                 generateCalendar();
-                closeModalFunc();
+                closeModals();
             }
 
             function populateOvertimeHours() {
@@ -1453,59 +1460,45 @@
             calendarBody.addEventListener('click', (e) => {
                 const cell = e.target.closest('.day-cell');
                 if (!cell || cell.classList.contains('other-month')) return;
-                openModal(cell.dataset.date);
-            });
-            
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModalFunc();
-            });
-
-            modalBackArrow.addEventListener('click', () => {
-                if (!overtimeHoursView.classList.contains('hidden')) {
-                    if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) {
-                        showModalView('modal-overtime-type-view');
-                    } else {
-                        showModalView('modal-main-view');
-                    }
-                } else if (!holidayView.classList.contains('hidden')) {
-                    showModalView('modal-main-view');
-                } else if (!overtimeTypeView.classList.contains('hidden')) {
-                     showModalView('modal-main-view');
-                } else if (!jpView.classList.contains('hidden') || !recView.classList.contains('hidden')) {
-                     showModalView('modal-leave-view');
+                const dateStr = cell.dataset.date;
+                if (isHoliday(dateStr)) {
+                    openHolidayModal(dateStr);
                 } else {
-                    if (dayData[selectedDay] && dayData[selectedDay].length > 0) {
-                        openModal(selectedDay);
-                    } else {
-                        showModalView('modal-main-view');
-                    }
+                    openDayModal(dateStr);
                 }
             });
+            
+            dayModal.addEventListener('click', (e) => {
+                if (e.target === dayModal) closeModals();
+            });
 
+            holidayModal.addEventListener('click', (e) => {
+                 if (e.target === holidayModal) closeModals();
+            });
 
             btnAddSecondData.addEventListener('click', () => {
                 editMode = 'append';
-                showModalView('modal-main-view');
+                showDayModalView('modal-main-view');
             });
 
-            goToLeaveBtn.addEventListener('click', () => showModalView('modal-leave-view'));
+            goToLeaveBtn.addEventListener('click', () => showDayModalView('modal-leave-view'));
             
             goToOvertimeBtn.addEventListener('click', () => {
                 if (selectedDayOfWeek === 0 || selectedDayOfWeek === 6) { 
-                    showModalView('modal-overtime-type-view');
+                    showDayModalView('modal-overtime-type-view');
                 } else { 
-                    showModalView('modal-overtime-hours-view');
+                    showDayModalView('modal-overtime-hours-view');
                 }
             });
 
             overtimeMorningBtn.addEventListener('click', () => {
                 selectedOvertimeShift = 'morning';
-                showModalView('modal-overtime-hours-view');
+                showDayModalView('modal-overtime-hours-view');
             });
 
             overtimeNightBtn.addEventListener('click', () => {
                 selectedOvertimeShift = 'night';
-                showModalView('modal-overtime-hours-view');
+                showDayModalView('modal-overtime-hours-view');
             });
 
 
@@ -1515,13 +1508,12 @@
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const leaveType = btn.dataset.leaveType;
-                    if (leaveType === 'JP') showModalView('modal-jp-view');
-                    else if (leaveType === 'REC') showModalView('modal-rec-view');
+                    if (leaveType === 'JP') showDayModalView('modal-jp-view');
+                    else if (leaveType === 'REC') showDayModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
                 });
             });
 
-            // NOUVEAU : Gestion des événements pour les boutons de jour férié
             holidayShiftBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     holidayShiftBtns.forEach(b => b.classList.remove('active'));
@@ -1548,7 +1540,6 @@
                     return;
                 }
 
-                // Pour un jour férié, on sauvegarde les deux informations en une seule fois
                 const data = [
                     {
                         type: 'holiday-work',
@@ -1565,13 +1556,23 @@
                 dayData[selectedDay] = data;
                 localStorage.setItem('dayData', JSON.stringify(dayData));
                 generateCalendar();
-                closeModalFunc();
+                closeModals();
             });
+
+            removeHolidayDataBtn.addEventListener('click', () => {
+                if (confirm("Voulez-vous vraiment supprimer toutes les données de ce jour férié ?")) {
+                    delete dayData[selectedDay];
+                    localStorage.setItem('dayData', JSON.stringify(dayData));
+                    generateCalendar();
+                    closeModals();
+                }
+            });
+
 
             saveOvertimeBtn.addEventListener('click', () => {
                  const hours = parseInt(overtimeHoursSelect.value);
                  if (hours === 0) {
-                     closeModalFunc();
+                     closeModals();
                      return;
                  }
                  const formattedString = `+${hours}h`;
