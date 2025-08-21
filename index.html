@@ -661,58 +661,14 @@
         }
 
         /* Styles spécifiques à la page "Jour Férié" */
-        #add-holiday-form {
-            background-color: #252931;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-            margin-bottom: 20px;
-        }
-
-        #add-holiday-form input[type="text"],
-        #add-holiday-form input[type="date"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 8px;
-            background-color: #3a404a;
-            color: var(--text-color);
-            font-family: 'Poppins', sans-serif;
-            box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        #add-holiday-form input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1); /* Rend l'icône du calendrier blanche */
-        }
-        #add-holiday-form input[type="date"]::-webkit-inner-spin-button,
-        #add-holiday-form input[type="date"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-
-        #add-holiday-form button {
-            width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            background-color: var(--primary-color);
-            color: var(--bg-color);
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-        }
-        #add-holiday-form button:active {
-            background-color: #00e0e0;
-            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-        }
-
         #holidays-list {
             list-style: none;
             padding: 0;
         }
-
+        #holiday-list-header {
+             text-align: center;
+             margin-bottom: 20px;
+        }
         .holiday-item {
             background-color: #252931;
             padding: 15px;
@@ -725,14 +681,43 @@
             font-size: 0.95rem;
             color: var(--text-color);
         }
+        .holiday-item.disabled {
+            opacity: 0.5;
+            text-decoration: line-through;
+            font-style: italic;
+        }
         .holiday-item span {
             flex-grow: 1;
+            padding-right: 10px;
         }
 
-        .holiday-item .delete-data-btn { /* Réutilise le style du bouton de suppression de la modale */
-            margin-left: 15px;
+        .holiday-toggle-btn {
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            color: #e74c3c;
+        }
+        .holiday-toggle-btn svg {
+            fill: currentColor;
+            width: 100%;
+            height: 100%;
+        }
+        .holiday-toggle-btn.active {
+            color: #27ae60;
         }
 
+        .holiday-toggle-btn:active {
+            transform: scale(0.9);
+        }
+        
     </style>
 </head>
 <body>
@@ -792,17 +777,9 @@
                      <h1>Jour férié</h1>
                  </div>
                  <div class="settings-container">
-                    <form id="add-holiday-form">
-                        <div class="form-group">
-                            <label for="holiday-name">Nom du jour férié</label>
-                            <input type="text" id="holiday-name" placeholder="Ex: Nouvel An" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="holiday-date">Date</label>
-                            <input type="date" id="holiday-date" required>
-                        </div>
-                        <button type="submit">Ajouter Jour Férié</button>
-                    </form>
+                    <div id="holiday-list-header">
+                       <p>Cliquez sur un jour férié pour l'afficher ou le masquer dans le calendrier.</p>
+                    </div>
                     <ul id="holidays-list">
                         </ul>
                  </div>
@@ -993,9 +970,6 @@
 
             // Holiday specific elements
             const settingsHolidayView = document.getElementById('settings-holiday-view');
-            const addHolidayForm = document.getElementById('add-holiday-form');
-            const holidayNameInput = document.getElementById('holiday-name');
-            const holidayDateInput = document.getElementById('holiday-date');
             const holidaysList = document.getElementById('holidays-list');
 
 
@@ -1003,9 +977,8 @@
             let today = new Date();
             let selectedDay = null;
             let dayData = JSON.parse(localStorage.getItem('dayData')) || {};
-            let holidays = []; // Combined list of holidays
-            let customHolidays = JSON.parse(localStorage.getItem('customHolidays')) || []; // User-added holidays
-            let deletedHolidays = JSON.parse(localStorage.getItem('deletedHolidays')) || []; // Default holidays deleted by user
+            let deletedHolidays = new Set(JSON.parse(localStorage.getItem('deletedHolidays')) || []); 
+            
             let editMode = 'overwrite';
             let selectedDayOfWeek = null;
             let selectedOvertimeShift = null;
@@ -1029,6 +1002,13 @@
                 return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
             }
 
+            // Master list of all Belgian holidays
+            const masterHolidays = [
+                 'Nouvel An', 'Lundi de Pâques', 'Fête du Travail', 'Ascension',
+                 'Lundi de Pentecôte', 'Fête Nationale', 'Assomption', 'Toussaint',
+                 'Armistice', 'Noël'
+            ];
+
             // Function to calculate Easter date (Pas de Pâques)
             // https://www.math.uoc.gr/~pamfilos/code/eastersund.js
             function getEasterSunday(year) {
@@ -1049,75 +1029,73 @@
                 return new Date(year, month - 1, day);
             }
             
-            // Function to get Belgian holidays for a given year
-            function getBelgianHolidays(year) {
-                const holidays = [];
-
-                // Fixed date holidays
-                const fixedHolidays = [
-                    { name: 'Nouvel An', month: 0, day: 1 },
-                    { name: 'Fête du Travail', month: 4, day: 1 },
-                    { name: 'Fête Nationale', month: 6, day: 21 },
-                    { name: 'Assomption', month: 7, day: 15 },
-                    { name: 'Toussaint', month: 10, day: 1 },
-                    { name: 'Armistice', month: 10, day: 11 },
-                    { name: 'Noël', month: 11, day: 25 }
-                ];
-                
-                fixedHolidays.forEach(h => {
-                     const date = new Date(year, h.month, h.day);
-                     holidays.push({ name: h.name, date: date });
-                });
-
-                // Variable date holidays based on Easter
+            // Function to get the date of a holiday for a given year
+            function getHolidayDate(holidayName, year) {
+                let date;
                 const easter = getEasterSunday(year);
-                
-                const easterMonday = new Date(easter);
-                easterMonday.setDate(easter.getDate() + 1);
-                holidays.push({ name: 'Lundi de Pâques', date: easterMonday });
 
-                const ascension = new Date(easter);
-                ascension.setDate(easter.getDate() + 39);
-                holidays.push({ name: 'Ascension', date: ascension });
-
-                const pentecostMonday = new Date(easter);
-                pentecostMonday.setDate(pentecostMonday.getDate() + 50);
-                holidays.push({ name: 'Lundi de Pentecôte', date: pentecostMonday });
+                switch (holidayName) {
+                    case 'Nouvel An':
+                        date = new Date(year, 0, 1);
+                        break;
+                    case 'Lundi de Pâques':
+                        date = new Date(easter);
+                        date.setDate(easter.getDate() + 1);
+                        break;
+                    case 'Fête du Travail':
+                        date = new Date(year, 4, 1);
+                        break;
+                    case 'Ascension':
+                        date = new Date(easter);
+                        date.setDate(easter.getDate() + 39);
+                        break;
+                    case 'Lundi de Pentecôte':
+                        date = new Date(easter);
+                        date.setDate(easter.getDate() + 50);
+                        break;
+                    case 'Fête Nationale':
+                        date = new Date(year, 6, 21);
+                        break;
+                    case 'Assomption':
+                        date = new Date(year, 7, 15);
+                        break;
+                    case 'Toussaint':
+                        date = new Date(year, 10, 1);
+                        break;
+                    case 'Armistice':
+                        date = new Date(year, 10, 11);
+                        break;
+                    case 'Noël':
+                        date = new Date(year, 11, 25);
+                        break;
+                    default:
+                        return null; 
+                }
                 
                 // Adjust for weekends
-                return holidays.map(h => {
-                    let newDate = new Date(h.date);
-                    const dayOfWeek = newDate.getDay();
-                    if (dayOfWeek === 6) { // Saturday
-                        newDate.setDate(newDate.getDate() - 1);
-                    } else if (dayOfWeek === 0) { // Sunday
-                        newDate.setDate(newDate.getDate() + 1);
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek === 6) { // Saturday
+                    date.setDate(date.getDate() - 1);
+                } else if (dayOfWeek === 0) { // Sunday
+                    date.setDate(date.getDate() + 1);
+                }
+                
+                return formatDate(date);
+            }
+
+            function getActiveHolidaysForYear(year) {
+                const activeHolidays = [];
+                masterHolidays.forEach(name => {
+                    if (!deletedHolidays.has(name)) {
+                        const date = getHolidayDate(name, year);
+                        if (date) {
+                            activeHolidays.push({ name, date });
+                        }
                     }
-                    return { name: h.name, date: formatDate(newDate) };
                 });
+                return activeHolidays;
             }
 
-            // Load all holidays at startup
-            function loadAllHolidays() {
-                const currentYear = currentDate.getFullYear();
-                const prevYear = currentYear - 1;
-                const nextYear = currentYear + 1;
-                
-                const autoHolidays = [...getBelgianHolidays(prevYear), ...getBelgianHolidays(currentYear), ...getBelgianHolidays(nextYear)];
-                
-                // Filter out deleted holidays
-                const filteredAutoHolidays = autoHolidays.filter(h => !deletedHolidays.some(d => d.name === h.name && d.date === h.date));
-
-                // Combine custom and filtered auto holidays
-                const combinedHolidays = [...customHolidays, ...filteredAutoHolidays];
-                
-                // Remove duplicates based on date
-                const uniqueHolidays = Array.from(new Map(combinedHolidays.map(h => [h.date, h])).values());
-
-                // Sort by date for proper display
-                uniqueHolidays.sort((a, b) => new Date(a.date) - new Date(b.date));
-                holidays = uniqueHolidays;
-            }
 
             function generateCalendar() {
                 calendarBody.innerHTML = '';
@@ -1136,6 +1114,8 @@
                 const currentWeekNumber = getWeekNumber(today);
                 const firstDayOf2025 = new Date('2025-01-01');
                 const firstWeekOf2025 = getWeekNumber(firstDayOf2025);
+                
+                const holidaysForDisplay = getActiveHolidaysForYear(year);
 
                 for (let i = 0; i < 6; i++) {
                     const weekIndicator = document.createElement('div');
@@ -1174,11 +1154,9 @@
                         const extraPlaceholder2 = document.createElement('div');
                         extraPlaceholder2.className = 'extra-placeholder-2';
                         
-                        // Check for holidays first
-                        const isHoliday = holidays.find(h => h.date === dateString);
+                        const isHoliday = holidaysForDisplay.find(h => h.date === dateString);
                         if (isHoliday) {
                             cell.classList.add('holiday');
-                            // Removed the holiday name display as requested
                         }
 
                         const dayOfWeekForShift = currentDay.getDay(); 
@@ -1374,7 +1352,6 @@
                 document.getElementById(viewId).classList.remove('hidden');
                 document.getElementById(viewId).classList.add('active');
 
-                // If navigating to holiday settings, refresh the list
                 if (viewId === 'settings-holiday-view') {
                     renderHolidaysList();
                 }
@@ -1399,12 +1376,10 @@
 
             prevMonthBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() - 1);
-                loadAllHolidays(); // Reload holidays for the new month's year
                 generateCalendar();
             });
             nextMonthBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() + 1);
-                loadAllHolidays(); // Reload holidays for the new month's year
                 generateCalendar();
             });
             calendarBody.addEventListener('click', (e) => {
@@ -1557,100 +1532,48 @@
             });
 
             // Holiday management functions
-            function saveCustomHolidays() {
-                localStorage.setItem('customHolidays', JSON.stringify(customHolidays));
-            }
-            
             function saveDeletedHolidays() {
-                localStorage.setItem('deletedHolidays', JSON.stringify(deletedHolidays));
+                localStorage.setItem('deletedHolidays', JSON.stringify([...deletedHolidays]));
             }
 
             function renderHolidaysList() {
                 holidaysList.innerHTML = '';
-                if (holidays.length === 0) {
-                    const emptyMessage = document.createElement('li');
-                    emptyMessage.textContent = "Aucun jour férié n'est actuellement affiché.";
-                    emptyMessage.style.textAlign = 'center';
-                    emptyMessage.style.color = 'var(--text-color-dark)';
-                    emptyMessage.style.padding = '20px';
-                    emptyMessage.style.background = 'none';
-                    emptyMessage.style.boxShadow = 'none';
-                    holidaysList.appendChild(emptyMessage);
-                    return;
-                }
-                
-                holidays.forEach((holiday, index) => {
+                masterHolidays.forEach(holidayName => {
                     const li = document.createElement('li');
                     li.classList.add('holiday-item');
-                    const formattedDate = new Date(holiday.date.replace(/-/g, '/')).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                    li.dataset.name = holidayName;
+
+                    const isDeleted = deletedHolidays.has(holidayName);
+                    if (isDeleted) {
+                        li.classList.add('disabled');
+                    }
+                    
+                    const iconPath = isDeleted ? 
+                         "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" : 
+                         "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z";
+
                     li.innerHTML = `
-                        <span>${holiday.name} (${formattedDate})</span>
-                        <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer ce jour férié">
-                            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        <span>${holidayName}</span>
+                        <button class="holiday-toggle-btn ${isDeleted ? 'red' : 'active'}" data-name="${holidayName}" aria-label="${isDeleted ? 'Afficher' : 'Masquer'} ce jour férié">
+                            <svg viewBox="0 0 24 24"><path d="${iconPath}"></path></svg>
                         </button>
                     `;
                     holidaysList.appendChild(li);
                 });
             }
 
-            addHolidayForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = holidayNameInput.value.trim();
-                const date = holidayDateInput.value;
-                
-                if (name && date) {
-                    const newHoliday = { name, date };
-                    
-                    // Check if it's already in the main list
-                    const exists = holidays.some(h => h.date === date && h.name.toLowerCase() === name.toLowerCase());
-                    if (exists) {
-                         alert("Ce jour férié existe déjà.");
-                         return;
-                    }
-                    
-                    // Add to custom list and save
-                    customHolidays.push(newHoliday);
-                    saveCustomHolidays();
-                    
-                    // Remove from deleted list if it was a default holiday
-                    deletedHolidays = deletedHolidays.filter(d => !(d.date === date && d.name === name));
-                    saveDeletedHolidays();
-
-                    loadAllHolidays();
-                    renderHolidaysList();
-                    generateCalendar();
-                    
-                    holidayNameInput.value = '';
-                    holidayDateInput.value = '';
-                } else {
-                    alert("Veuillez remplir tous les champs pour le jour férié.");
-                }
-            });
-
             holidaysList.addEventListener('click', (e) => {
-                const deleteBtn = e.target.closest('.delete-data-btn');
-                if (deleteBtn) {
-                    const index = parseInt(deleteBtn.dataset.index, 10);
-                    const holidayToDelete = holidays[index];
-
-                    if (confirm("Voulez-vous vraiment supprimer ce jour férié du calendrier ?")) {
-                        // Check if it's a custom or default holiday
-                        const isCustom = customHolidays.some(h => h.name === holidayToDelete.name && h.date === holidayToDelete.date);
-                        
-                        if (isCustom) {
-                            // Remove from custom list
-                            customHolidays = customHolidays.filter(h => !(h.name === holidayToDelete.name && h.date === holidayToDelete.date));
-                            saveCustomHolidays();
-                        } else {
-                            // Add to deleted list for default holidays
-                            deletedHolidays.push(holidayToDelete);
-                            saveDeletedHolidays();
-                        }
-                        
-                        loadAllHolidays();
-                        renderHolidaysList();
-                        generateCalendar();
+                const toggleBtn = e.target.closest('.holiday-toggle-btn');
+                if (toggleBtn) {
+                    const name = toggleBtn.dataset.name;
+                    if (deletedHolidays.has(name)) {
+                        deletedHolidays.delete(name);
+                    } else {
+                        deletedHolidays.add(name);
                     }
+                    saveDeletedHolidays();
+                    renderHolidaysList(); 
+                    generateCalendar();
                 }
             });
 
@@ -1664,7 +1587,6 @@
                 shiftToggleBtns[0].classList.add('active');
             }
             
-            loadAllHolidays();
             generateCalendar();
             renderHolidaysList();
 
