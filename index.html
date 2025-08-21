@@ -212,22 +212,12 @@
             color: #333; /* Texte plus sombre pour contraste */
             border-bottom-color: rgba(0,0,0,0.2);
         }
-        .holiday .shift {
-            background-color: rgba(0,0,0,0.1); /* Rendre le shift visible sur le jaune */
-            color: #333;
-        }
-        .holiday .holiday-label {
-            font-size: 0.6em;
-            font-weight: 600;
-            color: #555; /* Couleur de texte pour le label du jour férié */
-            text-align: center;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: none; /* Cache le nom du jour férié */
-        }
 
+        /* Pastille "Férié" */
+        .ferie-pill {
+            background-color: white;
+            color: black;
+        }
 
         .shift {
             font-size: 0.7rem;
@@ -1157,10 +1147,14 @@
                         const isHoliday = holidaysForDisplay.find(h => h.date === dateString);
                         if (isHoliday) {
                             cell.classList.add('holiday');
+                            const holidayPill = document.createElement('div');
+                            holidayPill.className = 'shift ferie-pill';
+                            holidayPill.textContent = 'Férié';
+                            shiftPlaceholder.appendChild(holidayPill);
                         }
 
                         const dayOfWeekForShift = currentDay.getDay(); 
-                        if (dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
+                        if (!isHoliday && dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
                             const yearForShift = currentDay.getFullYear();
                             const weekForShift = getWeekNumber(currentDay);
                             
