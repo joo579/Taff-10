@@ -949,6 +949,146 @@
         </a>
     </nav>
 
+    <div id="day-modal" class="modal">
+        <div class="modal-content">
+            <button id="modal-back-arrow" class="hidden" aria-label="Retour">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
+            
+            <h2 id="modal-title"></h2>
+            
+            <div id="modal-main-view" class="modal-view">
+                <div class="form-group">
+                    <label>Action</label>
+                    <div class="modal-options modal-grid">
+                        <button id="btn-go-to-leave" class="modal-control">Congé</button>
+                        <button id="btn-go-to-overtime" class="modal-control">Heures supp.</button>
+                        <button id="btn-strike" class="modal-control">Grève</button>
+                        <button id="btn-sick" class="modal-control">Malade</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-manage-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Données actuelles</label>
+                    <div id="current-data-display"></div>
+                </div>
+                <div class="form-group">
+                    <button id="btn-add-second-data" class="btn-primary">Ajouter une 2e donnée</button>
+                </div>
+            </div>
+            
+            <div id="modal-leave-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Type de congé</label>
+                    <div class="leave-options">
+                        <div class="leave-grid-row">
+                             <button class="modal-control leave-type-btn" data-leave-type="CL">CL</button>
+                             <button class="modal-control leave-type-btn" data-leave-type="JP">JP</button>
+                        </div>
+                        <div class="leave-grid-row">
+                            <button class="modal-control leave-type-btn" data-leave-type="CEL">CEL</button>
+                            <button class="modal-control leave-type-btn" data-leave-type="ANC">ANC</button>
+                            <button class="modal-control leave-type-btn" data-leave-type="REC">REC</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div id="modal-overtime-type-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Choisir le shift</label>
+                    <div class="modal-grid">
+                        <button id="overtime-morning-btn" class="modal-control">Matin</button>
+                        <button id="overtime-night-btn" class="modal-control">Nuit</button>
+                    </div>
+                </div>
+            </div>
+
+             <div id="modal-overtime-hours-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Heures supplémentaires</label>
+                     <div class="modal-grid">
+                         <div class="form-group">
+                            <label>Heures</label>
+                            <select id="overtime-hours" class="modal-control"></select>
+                         </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button id="save-overtime-btn" class="btn-primary">Sauvegarder</button>
+                </div>
+            </div>
+
+
+            <div id="modal-jp-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Choisir une option pour JP</label>
+                    <div class="modal-grid">
+                        <button id="jp-entier" class="modal-control">Entier</button>
+                        <button id="jp-demi" class="modal-control">Demi</button>
+                    </div>
+                </div>
+            </div>
+            <div id="modal-rec-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Saisir la durée de la récupération</label>
+                     <div class="modal-grid">
+                         <div class="form-group">
+                            <label>Heures</label>
+                            <select id="rec-hours" class="modal-control"></select>
+                         </div>
+                         <div class="form-group">
+                            <label>Minutes</label>
+                            <select id="rec-minutes" class="modal-control"></select>
+                         </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button id="save-rec-btn" class="btn-primary">Sauvegarder</button>
+                </div>
+            </div>
+            
+            <div id="modal-holiday-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Travailler un jour férié</label>
+                    <div class="modal-grid modal-holiday-btn-group">
+                        <button class="modal-control holiday-shift-btn" data-shift-type="morning">Matin</button>
+                        <button class="modal-control holiday-shift-btn" data-shift-type="night">Nuit</button>
+                        <button class="modal-control holiday-shift-btn" data-shift-type="pm">PM</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Option</label>
+                    <div class="modal-grid modal-holiday-btn-group">
+                        <button id="holiday-rec-btn" class="modal-control">À récupérer</button>
+                        <button id="holiday-pay-btn" class="modal-control">À payer</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                     <button id="save-holiday-btn" class="btn-primary">Sauvegarder</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <nav id="bottom-nav">
+        <a href="#" id="nav-horaire" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zM5 8V6h14v2H5z"/></svg>
+            <span>Horaire</span>
+        </a>
+        <a href="#" id="nav-solde" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5h5v-2h-5v2zm0-3h5v-2h-5v2z"/></svg>
+            <span>Solde</span>
+        </a>
+        <a href="#" id="nav-parametres" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61-.25-1.17-.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61-.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19-.15-.24-.42-.12-.64l2 3.46c.12.22.39.3.61-.22l2.49-1c.52.4 1.08.73 1.69-.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18-.49-.42l.38-2.65c.61-.25 1.17-.59-1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+            <span>Paramètres</span>
+        </a>
+    </nav>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const calendarBody = document.getElementById('calendar-body');
@@ -1288,7 +1428,6 @@
                 allViews.forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewToShow).classList.remove('hidden');
 
-                // NOUVEAU : Masquer la flèche de retour uniquement si la vue est modal-holiday-view
                 const isSubView = !['modal-main-view', 'modal-manage-view', 'modal-holiday-view'].includes(viewToShow);
                 modalBackArrow.classList.toggle('hidden', !isSubView);
             }
@@ -1302,7 +1441,6 @@
                 selectedDayOfWeek = date.getDay();
                 selectedOvertimeShift = null;
 
-                // NOUVEAU : Réinitialiser les sélections pour les jours fériés
                 selectedHolidayShift = null;
                 selectedHolidayOption = null;
                 holidayShiftBtns.forEach(btn => btn.classList.remove('active'));
@@ -1509,15 +1647,15 @@
             });
 
 
-            sickBtn.addEventListener('click', () => { updateDayData({ type: 'sick', value: 'AM', class: 'am' }); });
-            strikeBtn.addEventListener('click', () => { updateDayData({ type: 'strike', value: 'Grève', class: 'strike' }); });
+            sickBtn.addEventListener('click', () => { updateDayData({ type: 'sick', value: 'AM', class: 'am' }, editMode === 'append'); });
+            strikeBtn.addEventListener('click', () => { updateDayData({ type: 'strike', value: 'Grève', class: 'strike' }, editMode === 'append'); });
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const leaveType = btn.dataset.leaveType;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
-                    else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
+                    else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() }, editMode === 'append');
                 });
             });
 
@@ -1588,7 +1726,7 @@
                          type: 'overtime',
                          value: formattedString,
                          class: 'overtime'
-                     });
+                     }, editMode === 'append');
                  }
             });
 
@@ -1603,10 +1741,10 @@
             });
 
             jpEntierBtn.addEventListener('click', () => {
-                updateDayData({ type: 'leave', value: 'JP', class: 'jp' });
+                updateDayData({ type: 'leave', value: 'JP', class: 'jp' }, editMode === 'append');
             });
             jpDemiBtn.addEventListener('click', () => {
-                updateDayData({ type: 'leave', value: '1/2 JP', class: 'jp' });
+                updateDayData({ type: 'leave', value: '1/2 JP', class: 'jp' }, editMode === 'append');
             });
             
             saveRecBtn.addEventListener('click', () => {
@@ -1614,7 +1752,7 @@
                 const minutes = parseInt(recMinutesSelect.value);
                 if (hours === 0 && minutes === 0) return;
                 let formattedString = (minutes === 0) ? `${hours}h REC` : `${hours}h${String(minutes).padStart(2, '0')} REC`;
-                updateDayData({ type: 'leave', value: formattedString, class: 'rec' });
+                updateDayData({ type: 'leave', value: formattedString, class: 'rec' }, editMode === 'append');
             });
 
             navHoraireBtn.addEventListener('click', (e) => {
