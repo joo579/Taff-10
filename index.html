@@ -279,7 +279,7 @@
         }
         .modal.visible .modal-content { transform: translateY(0); }
         
-        #modal-title { 
+        #modal-title, #holiday-modal-title { 
             text-align: center; 
             font-size: 1.4rem;
             font-weight: 600;
@@ -348,15 +348,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
-
-        #leave-row-1 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        #leave-row-1 .leave-type-btn {
-            transform: translateX(50%);
-        }
-
+        
         .modal-control {
             font-family: 'Poppins', sans-serif;
             width: 100%;
@@ -716,6 +708,8 @@
             box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
             background: var(--bg-color);
         }
+        
+        /* Styles pour aligner les cadres de jour férié */
         #holiday-modal .modal-grid {
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
@@ -726,6 +720,11 @@
             padding: 15px 25px;
             color: var(--primary-color);
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
+            /* Ajout pour centrer le texte sur les boutons */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
         #holiday-modal .modal-holiday-btn-group .modal-control:active {
@@ -933,7 +932,7 @@
               <div id="holiday-main-view" class="modal-view">
                 <div class="form-group">
                     <label>Travailler un jour férié</label>
-                    <div class="modal-grid modal-holiday-btn-group">
+                    <div class="modal-grid">
                         <button class="modal-control holiday-shift-btn" data-shift-type="morning">Matin</button>
                         <button class="modal-control holiday-shift-btn" data-shift-type="night">Nuit</button>
                         <button class="modal-control holiday-shift-btn" data-shift-type="pm">PM</button>
@@ -941,7 +940,7 @@
                 </div>
                 <div class="form-group">
                     <label>Option</label>
-                    <div class="modal-grid modal-holiday-btn-group">
+                    <div class="modal-grid">
                         <button id="holiday-rec-btn" class="modal-control">À récupérer</button>
                         <button id="holiday-pay-btn" class="modal-control">À payer</button>
                     </div>
