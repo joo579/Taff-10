@@ -710,7 +710,29 @@
         .holiday-toggle-btn:active {
             transform: scale(0.9);
         }
-        
+
+        /* NOUVEAU: Styles pour la vue des jours fériés dans le modal */
+        #modal-holiday-view .modal-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        #modal-holiday-view #holiday-rec-btn,
+        #modal-holiday-view #holiday-pay-btn {
+            aspect-ratio: auto;
+            grid-column: span 1;
+            padding: 15px 25px;
+        }
+        #modal-holiday-view #holiday-rec-btn,
+        #modal-holiday-view #holiday-pay-btn {
+            color: var(--primary-color);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
+        }
+
+        #modal-holiday-view #holiday-rec-btn:active,
+        #modal-holiday-view #holiday-pay-btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px rgba(0, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -888,6 +910,25 @@
                     <button id="save-rec-btn" class="btn-primary">Sauvegarder</button>
                 </div>
             </div>
+            
+            <div id="modal-holiday-view" class="modal-view hidden">
+                <div class="form-group">
+                    <label>Travailler un jour férié</label>
+                    <div class="modal-grid">
+                        <button class="modal-control holiday-shift-btn" data-shift-type="morning">Matin</button>
+                        <button class="modal-control holiday-shift-btn" data-shift-type="night">Nuit</button>
+                        <button class="modal-control holiday-shift-btn" data-shift-type="pm">PM</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Option</label>
+                    <div class="modal-grid">
+                        <button id="holiday-rec-btn" class="modal-control">À récupérer</button>
+                        <button id="holiday-pay-btn" class="modal-control">À payer</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     
@@ -924,7 +965,9 @@
             const overtimeHoursView = document.getElementById('modal-overtime-hours-view');
             const jpView = document.getElementById('modal-jp-view');
             const recView = document.getElementById('modal-rec-view');
-            const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView];
+            // NOUVEAU : Référence à la nouvelle vue
+            const holidayView = document.getElementById('modal-holiday-view');
+            const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView, holidayView];
 
             const modalBackArrow = document.getElementById('modal-back-arrow');
             
@@ -948,8 +991,11 @@
             const strikeBtn = document.getElementById('btn-strike');
             const goToOvertimeBtn = document.getElementById('btn-go-to-overtime');
 
-            // Correction: Utilisez querySelectorAll pour cibler tous les boutons de congé par leur classe
             const leaveTypeBtns = document.querySelectorAll('.leave-type-btn');
+            // NOUVEAU : Référence aux nouveaux boutons de la vue jour férié
+            const holidayShiftBtns = document.querySelectorAll('.holiday-shift-btn');
+            const holidayRecBtn = document.getElementById('holiday-rec-btn');
+            const holidayPayBtn = document.getElementById('holiday-pay-btn');
             
             const navHoraireBtn = document.getElementById('nav-horaire');
             const navSoldeBtn = document.getElementById('nav-solde');
@@ -962,7 +1008,6 @@
             const settingsBackBtns = document.querySelectorAll('#settings-view .back-btn');
             const allSubViews = document.querySelectorAll('#settings-view .sub-view');
 
-            // Holiday specific elements
             const settingsHolidayView = document.getElementById('settings-holiday-view');
             const holidaysList = document.getElementById('holidays-list');
 
@@ -976,6 +1021,8 @@
             let editMode = 'overwrite';
             let selectedDayOfWeek = null;
             let selectedOvertimeShift = null;
+            // NOUVEAU : Variable pour stocker le shift sélectionné pour un jour férié
+            let selectedHolidayShift = null;
 
             const shifts = ['morning', 'night', 'pm'];
             const shiftNames = { morning: 'Matin', night: 'Nuit', pm: 'PM' };
@@ -996,15 +1043,12 @@
                 return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
             }
 
-            // Master list of all Belgian holidays
             const masterHolidays = [
                  'Nouvel An', 'Lundi de Pâques', 'Fête du Travail', 'Ascension',
                  'Lundi de Pentecôte', 'Fête Nationale', 'Assomption', 'Toussaint',
                  'Armistice', 'Noël'
             ];
 
-            // Function to calculate Easter date (Pas de Pâques)
-            // https://www.math.uoc.gr/~pamfilos/code/eastersund.js
             function getEasterSunday(year) {
                 var a = year % 19,
                     b = Math.floor(year / 100),
@@ -1023,7 +1067,6 @@
                 return new Date(year, month - 1, day);
             }
             
-            // Function to get the date of a holiday for a given year
             function getHolidayDate(holidayName, year) {
                 let date;
                 const easter = getEasterSunday(year);
@@ -1066,11 +1109,10 @@
                         return null; 
                 }
                 
-                // Adjust for weekends
                 const dayOfWeek = date.getDay();
-                if (dayOfWeek === 6) { // Saturday
+                if (dayOfWeek === 6) { 
                     date.setDate(date.getDate() - 1);
-                } else if (dayOfWeek === 0) { // Sunday
+                } else if (dayOfWeek === 0) {
                     date.setDate(date.getDate() + 1);
                 }
                 
@@ -1090,6 +1132,12 @@
                 return activeHolidays;
             }
 
+            // NOUVEAU : Fonction pour vérifier si une date est un jour férié actif
+            function isHoliday(dateString) {
+                const year = new Date(dateString).getFullYear();
+                const holidays = getActiveHolidaysForYear(year);
+                return holidays.some(h => h.date === dateString);
+            }
 
             function generateCalendar() {
                 calendarBody.innerHTML = '';
@@ -1277,7 +1325,14 @@
                     showModalView('modal-manage-view');
                 } else {
                     editMode = 'overwrite';
-                    showModalView('modal-main-view');
+                    // NOUVEAU : Logique pour les jours fériés
+                    if (isHoliday(selectedDay)) {
+                        showModalView('modal-holiday-view');
+                        selectedHolidayShift = null; // Réinitialiser le shift sélectionné
+                        holidayShiftBtns.forEach(btn => btn.classList.remove('active'));
+                    } else {
+                        showModalView('modal-main-view');
+                    }
                 }
                 modal.classList.add('visible');
             }
@@ -1397,6 +1452,9 @@
                     } else {
                         showModalView('modal-main-view');
                     }
+                // NOUVEAU : Gérer le retour de la vue de jour férié
+                } else if (!holidayView.classList.contains('hidden')) {
+                    closeModalFunc();
                 } else if (!overtimeTypeView.classList.contains('hidden')) {
                      showModalView('modal-main-view');
                 } else if (!jpView.classList.contains('hidden') || !recView.classList.contains('hidden')) {
@@ -1442,13 +1500,52 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType; // Correction de l'accès à l'attribut
+                    const leaveType = btn.dataset.leaveType;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
                 });
             });
-            
+
+            // NOUVEAU : Gestion des événements pour les boutons de jour férié
+            holidayShiftBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    holidayShiftBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedHolidayShift = btn.dataset.shiftType;
+                    
+                    // Mise à jour des données
+                    updateDayData({
+                        type: 'holiday-work',
+                        value: shiftNames[selectedHolidayShift],
+                        class: selectedHolidayShift
+                    });
+                    
+                    // Re-open modal in manage mode to add second option
+                    openModal(selectedDay); 
+                });
+            });
+
+            holidayRecBtn.addEventListener('click', () => {
+                if (selectedHolidayShift) {
+                     updateDayData({
+                        type: 'holiday-option',
+                        value: 'Récup',
+                        class: 'rec'
+                    });
+                }
+            });
+
+            holidayPayBtn.addEventListener('click', () => {
+                if (selectedHolidayShift) {
+                     updateDayData({
+                        type: 'holiday-option',
+                        value: 'Payé',
+                        class: 'overtime'
+                    });
+                }
+            });
+
             saveOvertimeBtn.addEventListener('click', () => {
                  const hours = parseInt(overtimeHoursSelect.value);
                  if (hours === 0) {
@@ -1472,7 +1569,6 @@
                      });
                  }
             });
-
 
             currentDataDisplay.addEventListener('click', (e) => {
                 const deleteBtn = e.target.closest('.delete-data-btn');
@@ -1529,7 +1625,6 @@
                  });
             });
 
-            // Holiday management functions
             function saveDeletedHolidays() {
                 localStorage.setItem('deletedHolidays', JSON.stringify([...deletedHolidays]));
             }
@@ -1575,8 +1670,6 @@
                 }
             });
 
-
-            // Initial load
             const savedShift = localStorage.getItem('startShift');
             if (savedShift) {
                 const activeBtn = document.querySelector(`.shift-toggle-btn[data-shift-type="${savedShift}"]`);
