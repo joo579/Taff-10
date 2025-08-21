@@ -464,7 +464,7 @@
             box-shadow: none;
             color: var(--primary-color);
         }
-
+        
         #modal-main-view .modal-grid .modal-control {
             aspect-ratio: auto;
             padding-top: 25px;
@@ -1287,7 +1287,9 @@
             function showModalView(viewToShow) {
                 allViews.forEach(v => v.classList.add('hidden'));
                 document.getElementById(viewToShow).classList.remove('hidden');
-                const isSubView = !['modal-main-view', 'modal-manage-view'].includes(viewToShow);
+
+                // NOUVEAU : Masquer la flèche de retour uniquement si la vue est modal-holiday-view
+                const isSubView = !['modal-main-view', 'modal-manage-view', 'modal-holiday-view'].includes(viewToShow);
                 modalBackArrow.classList.toggle('hidden', !isSubView);
             }
 
@@ -1467,8 +1469,6 @@
                     } else {
                         showModalView('modal-main-view');
                     }
-                } else if (!holidayView.classList.contains('hidden')) {
-                    showModalView('modal-main-view');
                 } else if (!overtimeTypeView.classList.contains('hidden')) {
                      showModalView('modal-main-view');
                 } else if (!jpView.classList.contains('hidden') || !recView.classList.contains('hidden')) {
