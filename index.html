@@ -621,7 +621,7 @@
         }
 
         /* Styles spécifiques à la page "Jour Férié" */
-        #holidays-list {
+        .settings-container #holidays-list {
             list-style: none;
             padding: 0;
         }
@@ -716,8 +716,10 @@
         }
         
         #holiday-modal .modal-holiday-btn-group .modal-control {
+            /* === MODIFICATION ICI : HAUTEUR DIVISÉE PAR 2 === */
             aspect-ratio: auto;
-            padding: 15px 25px;
+            padding: 7.5px 25px; 
+            /* === MODIFICATION ICI : TEXTE ET OMBRAGE EN CYAN === */
             color: var(--primary-color);
             box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px rgba(0, 255, 255, 0.1);
             /* Ajout pour centrer le texte sur les boutons */
