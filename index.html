@@ -1003,8 +1003,9 @@
             let today = new Date();
             let selectedDay = null;
             let dayData = JSON.parse(localStorage.getItem('dayData')) || {};
-            let holidays = []; // Combine custom and automatic holidays
-            let customHolidays = JSON.parse(localStorage.getItem('holidays')) || []; // Custom holidays from user
+            let holidays = []; // Combined list of holidays
+            let customHolidays = JSON.parse(localStorage.getItem('customHolidays')) || []; // User-added holidays
+            let deletedHolidays = JSON.parse(localStorage.getItem('deletedHolidays')) || []; // Default holidays deleted by user
             let editMode = 'overwrite';
             let selectedDayOfWeek = null;
             let selectedOvertimeShift = null;
@@ -1036,7 +1037,7 @@
                     c = year % 100,
                     d = Math.floor(b / 4),
                     e = b % 4,
-                    f = Math.floor((b + 8) / 25),
+                    f = Math.floor((b / 25) + 1),
                     g = Math.floor((b - f + 1) / 3),
                     h = (19 * a + b - d - g + 15) % 30,
                     i = Math.floor(c / 4),
@@ -1080,7 +1081,7 @@
                 holidays.push({ name: 'Ascension', date: ascension });
 
                 const pentecostMonday = new Date(easter);
-                pentecostMonday.setDate(easter.getDate() + 50);
+                pentecostMonday.setDate(pentecostMonday.getDate() + 50);
                 holidays.push({ name: 'Lundi de Pentecôte', date: pentecostMonday });
                 
                 // Adjust for weekends
@@ -1096,18 +1097,21 @@
                 });
             }
 
-
-            // Load holidays at startup
+            // Load all holidays at startup
             function loadAllHolidays() {
                 const currentYear = currentDate.getFullYear();
                 const prevYear = currentYear - 1;
                 const nextYear = currentYear + 1;
                 
-                // Fetch automatic holidays for previous, current and next year
                 const autoHolidays = [...getBelgianHolidays(prevYear), ...getBelgianHolidays(currentYear), ...getBelgianHolidays(nextYear)];
                 
-                // Combine and filter duplicates
-                const combinedHolidays = [...customHolidays, ...autoHolidays];
+                // Filter out deleted holidays
+                const filteredAutoHolidays = autoHolidays.filter(h => !deletedHolidays.some(d => d.name === h.name && d.date === h.date));
+
+                // Combine custom and filtered auto holidays
+                const combinedHolidays = [...customHolidays, ...filteredAutoHolidays];
+                
+                // Remove duplicates based on date
                 const uniqueHolidays = Array.from(new Map(combinedHolidays.map(h => [h.date, h])).values());
 
                 // Sort by date for proper display
@@ -1554,16 +1558,18 @@
 
             // Holiday management functions
             function saveCustomHolidays() {
-                localStorage.setItem('holidays', JSON.stringify(customHolidays));
-                loadAllHolidays(); // Update the main holidays list
-                generateCalendar(); // Re-render calendar to show new holidays
+                localStorage.setItem('customHolidays', JSON.stringify(customHolidays));
+            }
+            
+            function saveDeletedHolidays() {
+                localStorage.setItem('deletedHolidays', JSON.stringify(deletedHolidays));
             }
 
             function renderHolidaysList() {
                 holidaysList.innerHTML = '';
-                if (customHolidays.length === 0) {
+                if (holidays.length === 0) {
                     const emptyMessage = document.createElement('li');
-                    emptyMessage.textContent = "Aucun jour férié personnalisé n'a été ajouté.";
+                    emptyMessage.textContent = "Aucun jour férié n'est actuellement affiché.";
                     emptyMessage.style.textAlign = 'center';
                     emptyMessage.style.color = 'var(--text-color-dark)';
                     emptyMessage.style.padding = '20px';
@@ -1572,11 +1578,11 @@
                     holidaysList.appendChild(emptyMessage);
                     return;
                 }
-                customHolidays.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date
-                customHolidays.forEach((holiday, index) => {
+                
+                holidays.forEach((holiday, index) => {
                     const li = document.createElement('li');
                     li.classList.add('holiday-item');
-                    const formattedDate = new Date(holiday.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const formattedDate = new Date(holiday.date.replace(/-/g, '/')).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
                     li.innerHTML = `
                         <span>${holiday.name} (${formattedDate})</span>
                         <button class="delete-data-btn" data-index="${index}" aria-label="Supprimer ce jour férié">
@@ -1593,15 +1599,27 @@
                 const date = holidayDateInput.value;
                 
                 if (name && date) {
-                    const exists = customHolidays.some(h => h.date === date && h.name.toLowerCase() === name.toLowerCase());
+                    const newHoliday = { name, date };
+                    
+                    // Check if it's already in the main list
+                    const exists = holidays.some(h => h.date === date && h.name.toLowerCase() === name.toLowerCase());
                     if (exists) {
-                        alert("Un jour férié avec ce nom et cette date existe déjà.");
-                        return;
+                         alert("Ce jour férié existe déjà.");
+                         return;
                     }
-
-                    customHolidays.push({ name, date });
+                    
+                    // Add to custom list and save
+                    customHolidays.push(newHoliday);
                     saveCustomHolidays();
+                    
+                    // Remove from deleted list if it was a default holiday
+                    deletedHolidays = deletedHolidays.filter(d => !(d.date === date && d.name === name));
+                    saveDeletedHolidays();
+
+                    loadAllHolidays();
                     renderHolidaysList();
+                    generateCalendar();
+                    
                     holidayNameInput.value = '';
                     holidayDateInput.value = '';
                 } else {
@@ -1613,10 +1631,25 @@
                 const deleteBtn = e.target.closest('.delete-data-btn');
                 if (deleteBtn) {
                     const index = parseInt(deleteBtn.dataset.index, 10);
-                    if (confirm("Voulez-vous vraiment supprimer ce jour férié ?")) {
-                        customHolidays.splice(index, 1);
-                        saveCustomHolidays();
+                    const holidayToDelete = holidays[index];
+
+                    if (confirm("Voulez-vous vraiment supprimer ce jour férié du calendrier ?")) {
+                        // Check if it's a custom or default holiday
+                        const isCustom = customHolidays.some(h => h.name === holidayToDelete.name && h.date === holidayToDelete.date);
+                        
+                        if (isCustom) {
+                            // Remove from custom list
+                            customHolidays = customHolidays.filter(h => !(h.name === holidayToDelete.name && h.date === holidayToDelete.date));
+                            saveCustomHolidays();
+                        } else {
+                            // Add to deleted list for default holidays
+                            deletedHolidays.push(holidayToDelete);
+                            saveDeletedHolidays();
+                        }
+                        
+                        loadAllHolidays();
                         renderHolidaysList();
+                        generateCalendar();
                     }
                 }
             });
