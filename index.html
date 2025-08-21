@@ -747,6 +747,17 @@
         #holiday-modal .modal-view.hidden {
              display: none;
         }
+        
+        /* Styles spécifiques pour le groupe de boutons du modal férié */
+        #holiday-main-view .modal-grid.shift-group,
+        #holiday-main-view .modal-grid.option-group {
+             grid-template-columns: repeat(3, 1fr);
+             gap: 10px;
+        }
+        
+        #holiday-main-view .modal-grid.option-group {
+             grid-template-columns: 1fr 1fr;
+        }
 
     </style>
 </head>
@@ -934,7 +945,7 @@
               <div id="holiday-main-view" class="modal-view">
                 <div class="form-group">
                     <label>Travailler un jour férié</label>
-                    <div class="modal-grid">
+                    <div class="modal-grid shift-group">
                         <button class="modal-control holiday-shift-btn" data-shift-type="morning">Matin</button>
                         <button class="modal-control holiday-shift-btn" data-shift-type="night">Nuit</button>
                         <button class="modal-control holiday-shift-btn" data-shift-type="pm">PM</button>
@@ -942,7 +953,7 @@
                 </div>
                 <div class="form-group">
                     <label>Option</label>
-                    <div class="modal-grid">
+                    <div class="modal-grid option-group">
                         <button id="holiday-rec-btn" class="modal-control">À récupérer</button>
                         <button id="holiday-pay-btn" class="modal-control">À payer</button>
                     </div>
@@ -1596,7 +1607,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType;
+                    const leaveType = btn.dataset.leave-type;
                     if (leaveType === 'JP') showDayModalView('modal-jp-view');
                     else if (leaveType === 'REC') showDayModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
