@@ -967,7 +967,6 @@
             const overtimeHoursView = document.getElementById('modal-overtime-hours-view');
             const jpView = document.getElementById('modal-jp-view');
             const recView = document.getElementById('modal-rec-view');
-            // NOUVEAU : Référence à la nouvelle vue
             const holidayView = document.getElementById('modal-holiday-view');
             const allViews = [mainView, manageView, leaveView, overtimeTypeView, overtimeHoursView, jpView, recView, holidayView];
 
@@ -994,7 +993,6 @@
             const goToOvertimeBtn = document.getElementById('btn-go-to-overtime');
 
             const leaveTypeBtns = document.querySelectorAll('.leave-type-btn');
-            // NOUVEAU : Référence aux nouveaux boutons de la vue jour férié
             const holidayShiftBtns = document.querySelectorAll('.holiday-shift-btn');
             const holidayRecBtn = document.getElementById('holiday-rec-btn');
             const holidayPayBtn = document.getElementById('holiday-pay-btn');
@@ -1024,7 +1022,6 @@
             let editMode = 'overwrite';
             let selectedDayOfWeek = null;
             let selectedOvertimeShift = null;
-            // NOUVEAU : Variables pour stocker les sélections de la vue jour férié
             let selectedHolidayShift = null;
             let selectedHolidayOption = null;
 
@@ -1200,8 +1197,8 @@
                         const extraPlaceholder2 = document.createElement('div');
                         extraPlaceholder2.className = 'extra-placeholder-2';
                         
-                        const isHoliday = holidaysForDisplay.find(h => h.date === dateString);
-                        if (isHoliday) {
+                        const isHolidayForCell = holidaysForDisplay.find(h => h.date === dateString);
+                        if (isHolidayForCell) {
                             cell.classList.add('holiday');
                             const holidayPill = document.createElement('div');
                             holidayPill.className = 'shift ferie-pill';
@@ -1209,68 +1206,65 @@
                             shiftPlaceholder.appendChild(holidayPill);
                         }
 
-                        const dayOfWeekForShift = currentDay.getDay(); 
-                        if (!isHoliday && dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
-                            const yearForShift = currentDay.getFullYear();
-                            const weekForShift = getWeekNumber(currentDay);
-                            
-                            let weekDiff;
-                            if (yearForShift < 2025) {
-                                weekDiff = 0;
-                            } else {
-                                const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
-                                weekDiff = weekForShift - firstWeekOf2025;
-                            }
-
-                            const shiftIndex = (startShiftIndex + weekDiff) % shifts.length;
-                            const currentShift = shifts[shiftIndex];
-                            const shiftDiv = document.createElement('div');
-                            shiftDiv.className = `shift ${currentShift}`;
-                            shiftDiv.textContent = shiftNames[currentShift];
-                            shiftPlaceholder.appendChild(shiftDiv);
-                        } 
-
                         const dataArrayForDay = dayData[dateString];
                         if (dataArrayForDay && dataArrayForDay.length > 0) {
-                             dataArrayForDay.forEach((dataForDay, index) => {
-                                 if (dataForDay.type === 'overtime-weekend') {
-                                     if (index === 0) {
-                                         shiftPlaceholder.innerHTML = '';
-                                         const shiftDiv = document.createElement('div');
-                                         shiftDiv.className = `shift ${dataForDay.shiftClass}`;
-                                         shiftDiv.textContent = dataForDay.shiftValue;
-                                         shiftPlaceholder.appendChild(shiftDiv);
-                                     }
-                                     const overtimeDiv = document.createElement('span');
-                                     overtimeDiv.className = `extra-info overtime`;
-                                     overtimeDiv.textContent = dataForDay.overtimeValue;
-                                     if (index === 0) extraPlaceholder.innerHTML = '';
-                                     if (index === 0) extraPlaceholder.appendChild(overtimeDiv);
-                                     else if (index === 1) extraPlaceholder2.appendChild(overtimeDiv);
+                            if (isHolidayForCell) {
+                                // Gérer les pastilles du jour férié
+                                dataArrayForDay.forEach((data, index) => {
+                                    if (data.type === 'holiday-work' || data.type === 'holiday-option') {
+                                        const extraDiv = document.createElement('span');
+                                        extraDiv.className = `extra-info ${data.class || ''}`;
+                                        extraDiv.textContent = data.value;
+                                        if (index === 0) extraPlaceholder.appendChild(extraDiv);
+                                        else if (index === 1) extraPlaceholder2.appendChild(extraDiv);
+                                    }
+                                });
 
-                                 } else {
-                                     const extraDiv = document.createElement('span');
-                                     extraDiv.className = 'extra-info';
-                                     extraDiv.textContent = dataForDay.value;
-                                     if (dataForDay.class) extraDiv.classList.add(dataForDay.class);
-                                     
-                                     if (dataForDay.type === 'holiday-work' && index === 0) {
-                                         shiftPlaceholder.innerHTML = '';
-                                         extraDiv.classList.add('shift');
-                                         shiftPlaceholder.appendChild(extraDiv);
-                                     } else if (index === 0) {
-                                         extraPlaceholder.innerHTML = '';
-                                         extraPlaceholder.appendChild(extraDiv);
+                            } else {
+                                // Gérer les pastilles des jours non fériés
+                                dataArrayForDay.forEach((data, index) => {
+                                     let container = null;
+                                     if (index === 0) container = shiftPlaceholder;
+                                     else if (index === 1) container = extraPlaceholder;
+                                     else if (index === 2) container = extraPlaceholder2;
+
+                                     if (container) {
+                                         const div = document.createElement('div');
+                                         div.className = data.type === 'shift' ? 'shift' : 'extra-info';
+                                         if (data.class) div.classList.add(data.class);
+                                         div.textContent = data.value;
+                                         container.appendChild(div);
                                      }
-                                     else if (index === 1) extraPlaceholder2.appendChild(extraDiv);
-                                 }
-                             });
+                                });
+                            }
+                        } else {
+                            const dayOfWeekForShift = currentDay.getDay(); 
+                            if (!isHolidayForCell && dayOfWeekForShift >= 1 && dayOfWeekForShift <= 5) {
+                                const yearForShift = currentDay.getFullYear();
+                                const weekForShift = getWeekNumber(currentDay);
+                                
+                                let weekDiff;
+                                if (yearForShift < 2025) {
+                                    weekDiff = 0;
+                                } else {
+                                    const firstWeekOfYear = getWeekNumber(new Date(yearForShift, 0, 1));
+                                    weekDiff = weekForShift - firstWeekOf2025;
+                                }
+
+                                const shiftIndex = (startShiftIndex + weekDiff) % shifts.length;
+                                const currentShift = shifts[shiftIndex];
+                                const shiftDiv = document.createElement('div');
+                                shiftDiv.className = `shift ${currentShift}`;
+                                shiftDiv.textContent = shiftNames[currentShift];
+                                shiftPlaceholder.appendChild(shiftDiv);
+                            } 
                         }
+
 
                         if (currentMonth !== month) {
                            cell.classList.add('other-month');
                         } else {
-                            if (dayOfWeekForShift === 0 || dayOfWeekForShift === 6) {
+                            if (currentDay.getDay() === 0 || currentDay.getDay() === 6) {
                                 cell.classList.add('weekend');
                             }
                             if (dateString === todayFormatted) {
@@ -1346,7 +1340,6 @@
                     showModalView('modal-manage-view');
                 } else {
                     editMode = 'overwrite';
-                    // NOUVEAU : Logique pour les jours fériés
                     if (isHoliday(selectedDay)) {
                         showModalView('modal-holiday-view');
                     } else {
@@ -1359,11 +1352,14 @@
             function closeModalFunc() {
                 modal.classList.remove('visible');
             }
-
-            function updateDayData(newData) {
-                if (editMode === 'append') {
-                    if (dayData[selectedDay]) dayData[selectedDay].push(newData);
-                    else dayData[selectedDay] = [newData];
+            
+            function updateDayData(newData, append = false) {
+                if (append) {
+                     if (dayData[selectedDay]) {
+                         dayData[selectedDay].push(newData);
+                     } else {
+                         dayData[selectedDay] = [newData];
+                     }
                 } else {
                     dayData[selectedDay] = [newData];
                 }
@@ -1471,7 +1467,6 @@
                     } else {
                         showModalView('modal-main-view');
                     }
-                // NOUVEAU : Gérer le retour de la vue de jour férié
                 } else if (!holidayView.classList.contains('hidden')) {
                     showModalView('modal-main-view');
                 } else if (!overtimeTypeView.classList.contains('hidden')) {
@@ -1547,7 +1542,6 @@
                  selectedHolidayOption = 'Payé';
             });
             
-            // NOUVEAU : Gestionnaire du bouton de sauvegarde pour les jours fériés
             saveHolidayBtn.addEventListener('click', () => {
                 if (!selectedHolidayShift || !selectedHolidayOption) {
                     alert("Veuillez sélectionner un shift et une option pour le jour férié.");
