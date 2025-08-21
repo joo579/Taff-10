@@ -225,6 +225,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: none; /* Cache le nom du jour férié */
         }
 
 
@@ -1173,10 +1174,7 @@
                         const isHoliday = holidays.find(h => h.date === dateString);
                         if (isHoliday) {
                             cell.classList.add('holiday');
-                            const holidayLabel = document.createElement('span');
-                            holidayLabel.className = 'holiday-label';
-                            holidayLabel.textContent = isHoliday.name;
-                            extraPlaceholder2.appendChild(holidayLabel);
+                            // Removed the holiday name display as requested
                         }
 
                         const dayOfWeekForShift = currentDay.getDay(); 
@@ -1467,7 +1465,7 @@
             
             leaveTypeBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const leaveType = btn.dataset.leaveType;
+                    const leaveType = btn.dataset.leave-type;
                     if (leaveType === 'JP') showModalView('modal-jp-view');
                     else if (leaveType === 'REC') showModalView('modal-rec-view');
                     else updateDayData({ type: 'leave', value: leaveType, class: leaveType.toLowerCase() });
@@ -1563,6 +1561,17 @@
 
             function renderHolidaysList() {
                 holidaysList.innerHTML = '';
+                if (customHolidays.length === 0) {
+                    const emptyMessage = document.createElement('li');
+                    emptyMessage.textContent = "Aucun jour férié personnalisé n'a été ajouté.";
+                    emptyMessage.style.textAlign = 'center';
+                    emptyMessage.style.color = 'var(--text-color-dark)';
+                    emptyMessage.style.padding = '20px';
+                    emptyMessage.style.background = 'none';
+                    emptyMessage.style.boxShadow = 'none';
+                    holidaysList.appendChild(emptyMessage);
+                    return;
+                }
                 customHolidays.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date
                 customHolidays.forEach((holiday, index) => {
                     const li = document.createElement('li');
